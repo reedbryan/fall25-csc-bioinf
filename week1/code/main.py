@@ -2,6 +2,7 @@ from dbg import DBG
 from utils import read_data
 import sys
 import os
+from n50 import parse_fasta_lengths, compute_n50  # <-- import functions
 
 sys.setrecursionlimit(1000000)
 
@@ -13,7 +14,8 @@ if __name__ == "__main__":
     k = 25
     dbg = DBG(k=k, data_list=[short1, short2, long1])
     # dbg.show_count_distribution()
-    with open(os.path.join('../data/', argv[1], 'contig.fasta'), 'w') as f:
+    contig_path = os.path.join('../data/', argv[1], 'contig.fasta')
+    with open(contig_path, 'w') as f:
         for i in range(20):
             c = dbg.get_longest_contig()
             if c is None:
@@ -21,3 +23,10 @@ if __name__ == "__main__":
             print(i, len(c))
             f.write('>contig_%d\n' % i)
             f.write(c + '\n')
+
+    # Compute and print N50
+    lengths = parse_fasta_lengths(contig_path)
+    n50 = compute_n50(lengths)
+    print(f'N50: {n50}')
+
+
