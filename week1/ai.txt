@@ -1,0 +1,3 @@
+To VSCode copilot (using GPT-4.1)
+"how can i compute the N50 of this contig data?"
+"how can I run this and print the result from main.py?"
