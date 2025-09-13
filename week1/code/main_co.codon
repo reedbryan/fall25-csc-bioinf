@@ -2,14 +2,12 @@ print("========================================")
 print("HELLO WORLD - CODON SCRIPT STARTING")
 print("========================================")
 
-from dbg_new import DBG
+from dbg_co import DBG
 from utils_co import read_data
 from n50_co import parse_fasta_lengths, compute_n50
 import sys
 # No os import needed, we'll use string concatenation for paths
-print("debug1")
 def main():
-    print("debug2")
 
     argv = sys.argv
     if len(argv) < 2:

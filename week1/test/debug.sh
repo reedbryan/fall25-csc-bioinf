@@ -33,4 +33,4 @@ else
 fi
 
 echo "Running the Codon program with debug output..."
-~/.codon/bin/codon run -plugin seq dbg_new.codon utils.codon n50.codon main.codon data1
+~/.codon/bin/codon run -plugin seq dbg_co.codon utils_co.codon n50_co.codon main_co.codon data1
