@@ -1,0 +1,29 @@
+# No imports needed for standard file operations in Codon
+
+def parse_fasta_lengths(fasta_path: str) -> list[int]:
+    lengths = []
+    with open(fasta_path) as f:
+        seq = ''
+        for line in f.readlines():
+            if len(line) > 0:
+                if line[0] == '>':
+                    if len(seq) > 0:
+                        lengths.append(len(seq))
+                        seq = ''
+                else:
+                    seq += line.strip()
+        if len(seq) > 0:
+            lengths.append(len(seq))
+    return lengths
+
+def compute_n50(lengths: list[int]) -> int:
+    # Make a copy and sort it in reverse order
+    lengths_sorted = sorted(lengths, reverse=True)
+    total = sum(lengths)
+    half = total / 2
+    running = 0
+    for l in lengths_sorted:
+        running += l
+        if running >= half:
+            return l
+    return 0  # Default return in case the list is empty

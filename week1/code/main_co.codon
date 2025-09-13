@@ -1,0 +1,58 @@
+print("========================================")
+print("HELLO WORLD - CODON SCRIPT STARTING")
+print("========================================")
+
+from dbg_new import DBG
+from utils_co import read_data
+from n50_co import parse_fasta_lengths, compute_n50
+import sys
+# No os import needed, we'll use string concatenation for paths
+print("debug1")
+def main():
+    print("debug2")
+
+    argv = sys.argv
+    if len(argv) < 2:
+        print("Usage: codon main.codon <data_directory>")
+        return
+    
+    print("Starting program...")    
+    data_dir = argv[1]
+    data_path = '../data/' + data_dir
+    print(f"Reading data from {data_path}")
+    
+    # No try-catch in Codon, using direct calls instead
+    short1, short2, long1 = read_data(data_path)
+    print(f"Successfully read data: {len(short1)} short1 reads, {len(short2)} short2 reads, {len(long1)} long reads")
+
+    k = 25
+    print(f"Building De Bruijn Graph with k={k}")
+    dbg = DBG(k=k, data_list=[short1, short2, long1])
+    print(f"DBG built with {len(dbg.nodes)} nodes")
+    
+    # Debug: Show count distribution
+    dbg.show_count_distribution()
+    
+    contig_path = data_path + '/contig.fasta'
+    print(f"Writing contigs to {contig_path}")
+    with open(contig_path, 'w') as f:
+        contig_count = 0
+        for i in range(20):
+            print(f"Generating contig {i}...")
+            c = dbg.get_longest_contig()
+            if c == "":
+                print(f"No more contigs available after {i} iterations")
+                break
+            print(f"Contig {i} generated with length {len(c)}")
+            f.write(f'>contig_{i}\n')
+            f.write(c + '\n')
+            contig_count += 1
+        print(f"Total contigs generated: {contig_count}")
+
+    # Compute and print N50
+    lengths = parse_fasta_lengths(contig_path)
+    n50 = compute_n50(lengths)
+    print(f'N50: {n50}')
+
+if __name__ == "__main__":
+    main()

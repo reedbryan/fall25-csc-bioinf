@@ -1,0 +1,8 @@
+{
+  "files.associations": {
+    "*.codon": "python"
+  },
+  "python.analysis.extraPaths": [
+    "~/.codon/lib/python"
+  ]
+}

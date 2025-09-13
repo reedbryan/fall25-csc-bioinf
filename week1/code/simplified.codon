@@ -1,0 +1,72 @@
+import sys
+
+print("========================================")
+print("HELLO WORLD - SIMPLIFIED CODON SCRIPT")
+print("========================================")
+
+def read_fasta(path: str, name: str) -> list[str]:
+    data = []
+    file_path = path + "/" + name if path[-1] != '/' else path + name
+    print(f"Reading from file: {file_path}")
+    with open(file_path, 'r') as f:
+        for line in f.readlines():
+            line = line.strip()
+            if len(line) > 0 and line[0] != '>':
+                data.append(line)
+    print(f"Read {len(data)} sequences from {name}")
+    return data
+
+def calculate_n50(contig_lengths: list[int]) -> int:
+    if not contig_lengths:
+        return 0
+    
+    sorted_lengths = sorted(contig_lengths, reverse=True)
+    total_length = sum(sorted_lengths)
+    running_sum = 0
+    
+    for length in sorted_lengths:
+        running_sum += length
+        if running_sum >= total_length / 2:
+            return length
+    
+    return 0
+
+def main():
+    argv = sys.argv
+    if len(argv) < 2:
+        print("Usage: codon simplified.codon <data_directory>")
+        return
+    
+    print("Starting program...")    
+    data_dir = argv[1]
+    data_path = '../data/' + data_dir
+    print(f"Reading data from {data_path}")
+    
+    try:
+        # Read just one of the files to test functionality
+        short1 = read_fasta(data_path, "short_1.fasta")
+        print(f"Successfully read data: {len(short1)} sequences")
+        
+        # Just simulate some contigs - calculate N50 of the first 10 sequences
+        contig_lengths = [len(seq) for seq in short1[:10]]
+        print("Simulated contig lengths:", contig_lengths)
+        
+        # Calculate N50
+        n50 = calculate_n50(contig_lengths)
+        print(f"Simulated N50: {n50}")
+        
+        # Write a simple output file
+        output_path = data_path + "/simple_output.txt"
+        with open(output_path, "w") as f:
+            f.write(f"N50: {n50}\n")
+            f.write("Simulated contig lengths:\n")
+            for i, length in enumerate(contig_lengths):
+                f.write(f"Contig {i}: {length}\n")
+        
+        print(f"Output written to {output_path}")
+    
+    except Exception as e:
+        print(f"Error occurred: {e}")
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,12 @@
+N50: 100
+Simulated contig lengths:
+Contig 0: 100
+Contig 1: 100
+Contig 2: 100
+Contig 3: 100
+Contig 4: 100
+Contig 5: 100
+Contig 6: 100
+Contig 7: 100
+Contig 8: 100
+Contig 9: 100

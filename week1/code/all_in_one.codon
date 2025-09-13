@@ -1,0 +1,258 @@
+import sys
+
+# =========== COPY OF UTILS_CO.CODON ===========
+def read_fasta(path: str, name: str) -> list[str]:
+    data = []
+    # Manually join paths with a slash
+    file_path = path + "/" + name if path[-1] != '/' else path + name
+    with open(file_path, 'r') as f:
+        for line in f.readlines():
+            line = line.strip()
+            if len(line) > 0 and line[0] != '>':
+                data.append(line)
+    print(name, len(data), len(data[0]))
+    # print('Sample:', data[0])
+    return data
+
+def read_data(path: str) -> tuple[list[str], list[str], list[str]]:
+    short1 = read_fasta(path, "short_1.fasta")
+    short2 = read_fasta(path, "short_2.fasta")
+    long1 = read_fasta(path, "long.fasta")
+    return short1, short2, long1
+
+# =========== COPY OF N50_CO.CODON ===========
+def parse_fasta_lengths(fasta_path: str) -> list[int]:
+    lengths = []
+    with open(fasta_path) as f:
+        seq = ''
+        for line in f.readlines():
+            if len(line) > 0:
+                if line[0] == '>':
+                    if len(seq) > 0:
+                        lengths.append(len(seq))
+                        seq = ''
+                else:
+                    seq += line.strip()
+        if len(seq) > 0:
+            lengths.append(len(seq))
+    return lengths
+
+def compute_n50(lengths: list[int]) -> int:
+    # Make a copy and sort it in reverse order
+    lengths_sorted = sorted(lengths, reverse=True)
+    total = sum(lengths)
+    half = total / 2
+    running = 0
+    for l in lengths_sorted:
+        running += l
+        if running >= half:
+            return l
+    return 0  # Default return in case the list is empty
+
+# =========== COPY OF DBG_NEW.CODON ===========
+from copy import copy
+
+def reverse_complement(key: str) -> str:
+    complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
+    result = ""
+    for i in range(len(key)-1, -1, -1):
+        result += complement[key[i]]
+    return result
+
+class Node:
+    def __init__(self, kmer: str):
+        self.children: set[int] = set()
+        self.count: int = 0
+        self.kmer: str = kmer
+        self.visited: bool = False
+        self.depth: int = 0
+        self.max_depth_child: int = -1  # -1 indicates no child
+    
+    def add_child(self, idx: int):
+        self.children.add(idx)
+    
+    def increase(self):
+        self.count += 1
+    
+    def reset(self):
+        self.visited = False
+        self.depth = 0
+        self.max_depth_child = -1
+    
+    def get_count(self) -> int:
+        return self.count
+    
+    def get_children(self) -> list[int]:
+        return list(self.children)
+    
+    def remove_children(self, target: set[int]):
+        self.children = self.children - target
+
+class DBG:
+    def __init__(self, k: int, data_list: list[list[str]]):
+        self.k = k
+        self.nodes: dict[int, Node] = {}
+        self.kmer2idx: dict[str, int] = {}
+        self.kmer_count = 0
+        
+        # Check data
+        assert len(data_list) > 0
+        assert self.k <= len(data_list[0][0])
+        
+        # Build graph
+        self._build(data_list)
+    
+    def _build(self, data_list: list[list[str]]):
+        for data in data_list:
+            for original in data:
+                rc = reverse_complement(original)
+                for i in range(len(original) - self.k - 1):
+                    self._add_arc(original[i:i+self.k], original[i+1:i+1+self.k])
+                    self._add_arc(rc[i:i+self.k], rc[i+1:i+1+self.k])
+    
+    def _add_node(self, kmer: str) -> int:
+        if kmer not in self.kmer2idx:
+            self.kmer2idx[kmer] = self.kmer_count
+            self.nodes[self.kmer_count] = Node(kmer)
+            self.kmer_count += 1
+        idx = self.kmer2idx[kmer]
+        self.nodes[idx].increase()
+        return idx
+    
+    def _add_arc(self, kmer1: str, kmer2: str):
+        idx1 = self._add_node(kmer1)
+        idx2 = self._add_node(kmer2)
+        self.nodes[idx1].add_child(idx2)
+    
+    def _get_sorted_children(self, idx: int) -> list[int]:
+        children = self.nodes[idx].get_children()
+        return sorted(children, key=lambda child: self.nodes[child].get_count(), reverse=True)
+    
+    def _get_depth(self, idx: int) -> int:
+        if not self.nodes[idx].visited:
+            self.nodes[idx].visited = True
+            children = self._get_sorted_children(idx)
+            max_depth, max_child = 0, -1
+            for child in children:
+                depth = self._get_depth(child)
+                if depth > max_depth:
+                    max_depth = depth
+                    max_child = child
+            self.nodes[idx].depth = max_depth + 1
+            self.nodes[idx].max_depth_child = max_child
+        return self.nodes[idx].depth
+    
+    def _reset(self):
+        for idx in self.nodes:
+            self.nodes[idx].reset()
+    
+    def _get_longest_path(self) -> list[int]:
+        max_depth, max_idx = 0, -1
+        for idx in self.nodes:
+            depth = self._get_depth(idx)
+            if depth > max_depth:
+                max_depth = depth
+                max_idx = idx
+        
+        if max_idx < 0:
+            return []
+            
+        path = []
+        current_idx = max_idx
+        while current_idx >= 0:
+            path.append(current_idx)
+            current_idx = self.nodes[current_idx].max_depth_child
+        return path
+    
+    def _delete_path(self, path: list[int]):
+        if not path:
+            return
+            
+        path_set = set(path)
+        for idx in path:
+            if idx in self.nodes:
+                del self.nodes[idx]
+                
+        keys_to_check = list(self.nodes.keys())
+        for idx in keys_to_check:
+            if idx in self.nodes:
+                self.nodes[idx].remove_children(path_set)
+    
+    def _concat_path(self, path: list[int]) -> str:
+        if not path:
+            return ""
+            
+        concat = copy(self.nodes[path[0]].kmer)
+        for i in range(1, len(path)):
+            concat += self.nodes[path[i]].kmer[-1]
+        return concat
+    
+    def get_longest_contig(self) -> str:
+        self._reset()
+        path = self._get_longest_path()
+        contig = self._concat_path(path)
+        self._delete_path(path)
+        return contig
+    
+    def show_count_distribution(self):
+        count = [0] * 30
+        for idx in self.nodes:
+            c = self.nodes[idx].get_count()
+            if c < len(count):
+                count[c] += 1
+        print(count[0:10])
+
+# =========== MAIN PROGRAM ===========
+
+print("========================================")
+print("HELLO WORLD - CODON SCRIPT STARTING")
+print("========================================")
+
+def main():
+    print("debug2")
+
+    argv = sys.argv
+    if len(argv) < 2:
+        print("Usage: codon main.codon <data_directory>")
+        return
+    
+    print("Starting program...")    
+    data_dir = argv[1]
+    data_path = '../data/' + data_dir
+    print(f"Reading data from {data_path}")
+    
+    # No try-catch in Codon, using direct calls instead
+    short1, short2, long1 = read_data(data_path)
+    print(f"Successfully read data: {len(short1)} short1 reads, {len(short2)} short2 reads, {len(long1)} long reads")
+
+    k = 25
+    print(f"Building De Bruijn Graph with k={k}")
+    dbg = DBG(k=k, data_list=[short1, short2, long1])
+    print(f"DBG built with {len(dbg.nodes)} nodes")
+    
+    # Debug: Show count distribution
+    dbg.show_count_distribution()
+    
+    contig_path = data_path + '/contig.fasta'
+    print(f"Writing contigs to {contig_path}")
+    with open(contig_path, 'w') as f:
+        contig_count = 0
+        for i in range(20):
+            print(f"Generating contig {i}...")
+            c = dbg.get_longest_contig()
+            if c == "":
+                print(f"No more contigs available after {i} iterations")
+                break
+            print(f"Contig {i} generated with length {len(c)}")
+            f.write(f'>contig_{i}\n')
+            f.write(c + '\n')
+            contig_count += 1
+        print(f"Total contigs generated: {contig_count}")
+
+    # Compute and print N50
+    lengths = parse_fasta_lengths(contig_path)
+    n50 = compute_n50(lengths)
+    print(f'N50: {n50}')
+
+if __name__ == "__main__":
+    main()

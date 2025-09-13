@@ -1,0 +1,12 @@
+print("Simple Codon Test - If you see this, Codon is working!")
+
+def test_func():
+    print("This is a test function")
+    for i in range(5):
+        print(f"Number: {i}")
+    return "Success"
+
+result = test_func()
+print(f"Test result: {result}")
+
+print("Test completed")

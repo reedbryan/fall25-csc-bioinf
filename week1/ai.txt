@@ -1,3 +1,22 @@
-To VSCode copilot (using GPT-4.1)
-"how can i compute the N50 of this contig data?"
-"how can I run this and print the result from main.py?"
+To VSCode copilot (using Claude Sonnet 3.7)
+
+1. With reference to contig.fasta: "how can i compute the N50 of this contig data?"
+
+2. With rerference to N50.py: "how can I run this and print the result from main.py?"
+
+3. With refeence to all python code: "ok I need to copy the functionality of these 
+                                    files in codon code. what(if any) considerations 
+                                    do I need to take into accout outside of syntax?"
+
+4. "the codon code doesnt seem to be getting recognized by the ide. I installed codon following these commands:
+
+    # Install Codon
+    /bin/bash -c "$(curl -fsSL https://exaloop.io/install.sh)"
+
+    # Install seq plugin for bioinformatics
+    curl -L https://github.com/exaloop/seq/releases/download/v0.11.5/seq-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m).tar.gz | tar zxvf - -C ${HOME}/.codon/lib/codon/plugins
+
+    I also tested the installation with this (and confirmed it is installed):
+    echo -ne "import bio\nprint('hello', s'ACGT')\n" | ~/.codon/bin/codon run -plugin seq -
+
+    Do you know why the code doesnt seem to be recognized?"
