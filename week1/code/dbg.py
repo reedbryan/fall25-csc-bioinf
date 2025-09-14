@@ -1,5 +1,10 @@
 import copy
-from matplotlib import pyplot as plt
+# Make matplotlib optional
+try:
+    from matplotlib import pyplot as plt
+    HAS_MATPLOTLIB = True
+except ImportError:
+    HAS_MATPLOTLIB = False
 
 
 def reverse_complement(key):
@@ -70,8 +75,10 @@ class DBG:
         for idx in self.nodes:
             count[self.nodes[idx].get_count()] += 1
         print(count[0:10])
-        # plt.plot(count)
-        # plt.show()
+        # Only plot if matplotlib is available
+        # if HAS_MATPLOTLIB:
+        #    plt.plot(count)
+        #    plt.show()
 
     def _add_node(self, kmer):
         if kmer not in self.kmer2idx:
