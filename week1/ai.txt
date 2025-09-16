@@ -1,4 +1,6 @@
-To VSCode copilot (using Claude Sonnet 3.7)
+Notes:
+- All prompts are going to VSCode copilot, which has viewing access to my code and is using Claude Sonnet 3.7.
+- I didn't use AI for reproducing the contig results, as thankfully that part went smoothly. 
 
 1. With reference to contig.fasta: "how can i compute the N50 of this contig data?"
 
