@@ -20,3 +20,67 @@ To VSCode copilot (using Claude Sonnet 3.7)
     echo -ne "import bio\nprint('hello', s'ACGT')\n" | ~/.codon/bin/codon run -plugin seq -
 
     Do you know why the code doesnt seem to be recognized?"
+
+5. "I still get an error about std.io import:
+
+"(base) reedbryan@w206-012-251-001 code % chmod +x run.sh
+(base) reedbryan@w206-012-251-001 code % ./run.sh data1 
+utils.codon:2 (1-35): error: no module named 'std.io'
+╰─ error: during the realization of <import utils>
+(base) reedbryan@w206-012-251-001 code % ""
+
+6. "That causes other problems
+
+"(base) reedbryan@w206-012-251-001 code % chmod +x run.sh
+(base) reedbryan@w206-012-251-001 code % ./run.sh data1 
+utils.codon:5 (15-39): error: cannot import name 'join' from 'os.path'
+├─ utils.codon:15 (14-24): error: during the realization of read_fasta(path: str, name: str)
+├─ main.codon:15 (29-38): error: during the realization of read_data(path: str)
+╰─ main.codon:37 (5-9): error: during the realization of main()
+(base) reedbryan@w206-012-251-001 code % ""
+
+7. "That causes other problems
+
+"(base) reedbryan@w206-012-251-001 code % chmod +x run.sh
+(base) reedbryan@w206-012-251-001 code % ./run.sh data1 
+utils.codon:5 (15-39): error: cannot import name 'join' from 'os.path'
+├─ utils.codon:15 (14-24): error: during the realization of read_fasta(path: str, name: str)
+├─ main.codon:15 (29-38): error: during the realization of read_data(path: str)
+╰─ main.codon:37 (5-9): error: during the realization of main()
+(base) reedbryan@w206-012-251-001 code % ""
+
+8. "I am getting similar results after those changes:
+
+"(base) reedbryan@w206-012-251-001 code % chmod +x run.sh
+(base) reedbryan@w206-012-251-001 code % ./run.sh data1 
+dbg.codon:72 (13-53): error: 'Node[Set[int],int,int,str,int,bool]' does not match expected type 'Node[NoneType,NoneType,NoneType,NoneType,NoneType,NoneType]'
+├─ dbg.codon:79 (16-37): error: during the realization of _add_node(self: DBG[int,Dict[str,int],int,Dict[int,Node[NoneType,NoneType,NoneType,NoneType,NoneType,NoneType]]], kmer: str)
+├─ dbg.codon:60 (21-82): error: during the realization of _add_arc(self: DBG[int,Dict[str,int],int,Dict[int,Node[NoneType,NoneType,NoneType,NoneType,NoneType,NoneType]]], kmer1: str, kmer2: str)
+├─ dbg.codon:48 (9-31): error: during the realization of _build(self: DBG[int,Dict[str,int],int,Dict[int,Node[NoneType,NoneType,NoneType,NoneType,NoneType,NoneType]]], data_list: List[List[str]])
+├─ main.codon:18 (11-54): error: during the realization of __init__(self: DBG[int,Dict[str,int],int,Dict[int,Node[NoneType,NoneType,NoneType,NoneType,NoneType,NoneType]]], k: int, data_list: List[List[str]])
+╰─ main.codon:37 (5-9): error: during the realization of main()
+(base) reedbryan@w206-012-251-001 code % ""
+
+9. "running the program should give some sort of output if im not mistaken. this was my output: 
+"(base) reedbryan@w206-012-251-001 code % chmod +x run.sh
+(base) reedbryan@w206-012-251-001 code % ./run.sh data1 
+(base) reedbryan@w206-012-251-001 code % ". What went wrong?"
+
+9. "i dont see the debug print statements in main_co.codon when I run my code, do print statements workr the same in codon?"
+
+10. "contig.fasta is not there the code never gets ran"
+
+11. "how can I measure the runtime of main_co.codon?"
+
+12. "I dont actually need the date it begins, I only need the total runtime"
+
+13. "can we use codon run -release for timing instead?"
+
+12. "do we still need the timing stuff in main_co.codon when using -realease?"
+
+13. "ok now I need the evaluate script to run both the python and the codon script, measuring the total time of each, formatted like so:
+
+Dataset	Language 	Runtime 	N50
+-------------------------------------------------------------------------------------------------------
+data1	python		0:20:00		9118
+data1	codon		0:10:00		9118"
