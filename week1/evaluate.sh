@@ -12,10 +12,23 @@ echo "--------------------------------------------------------------------------
 
 # Function to format runtime
 format_runtime() {
-    local seconds=$1
-    local minutes=$(echo "$seconds/60" | bc)
-    local remaining_seconds=$(echo "$seconds-$minutes*60" | bc)
-    printf "%dm:%05.2fs" $minutes $remaining_seconds
+    local total_seconds=$1
+    local minutes=$((total_seconds / 60))
+    local seconds=$((total_seconds % 60))
+    # For centiseconds, get the current time in nanoseconds and calculate the difference
+    # But since we use date +%s (integer seconds), centiseconds will always be 00.
+    # To get centiseconds, use date +%s.%N for start and end, then calculate difference with bc
+    # So, if input contains a decimal, handle it:
+    local centiseconds=00
+    if [[ $total_seconds == *.* ]]; then
+        # Extract decimal part, multiply by 100, and format as two digits
+        local decimal_part=$(echo $total_seconds | awk -F. '{print $2}')
+        centiseconds=$(printf "%02d" $(echo "0.$decimal_part * 100" | bc | awk -F. '{print $1}'))
+        total_seconds=$(echo $total_seconds | awk -F. '{print $1}')
+        minutes=$((total_seconds / 60))
+        seconds=$((total_seconds % 60))
+    fi
+    printf "%02d:%02d:%02d" $minutes $seconds $centiseconds
 }
 
 # Run Python version and measure runtime
