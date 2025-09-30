@@ -11,7 +11,7 @@ try:
     from Bio import motifs
 except ImportError:
     # If Bio.motifs is not available, try importing from the current directory
-    from . import __init__ as motifs
+    import __init__ as motifs
 
 
 def read(handle):

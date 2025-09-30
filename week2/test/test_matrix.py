@@ -5,8 +5,8 @@ Test the matrix functionality with our motif analysis code.
 
 import sys
 import os
-# Add the code directory to the Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Add the src directory to the Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import numpy as np
 from matrix import FrequencyPositionMatrix, PositionWeightMatrix

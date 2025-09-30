@@ -5,8 +5,8 @@ Test all modules working together
 
 import sys
 import os
-# Add the code directory to the Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Add the src directory to the Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 def test_all_modules():
     print("Testing all module imports...")

@@ -190,7 +190,7 @@ class Motif:
 
     def __init__(self, alphabet="ACGT", alignment=None, counts=None):
         """Initialize the class."""
-        from . import matrix
+        import matrix
 
         self.name = ""
         if counts is not None and alignment is not None:
