@@ -1,19 +1,15 @@
-#!/usimport sys
-import os
-import sys
-# Add the src directory to the Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+#!/usr/bin/env python3
 """
 Test the PSSM distribution functionality (which uses thresholds module)
 """
 
 import sys
 import os
-# Add the code directory to the Python path
+# Add the src directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import numpy as np
-from matrix import FrequencyPositionMatrix
+from my_bio_python.matrix import FrequencyPositionMatrix
 
 def test_pssm_distribution():
     """Test PSSM distribution calculation."""

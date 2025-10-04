@@ -13,26 +13,26 @@ def test_all_modules():
     
     # Test individual modules
     try:
-        import matrix
+        from my_bio_python import matrix
         print("✓ matrix module imported successfully")
     except ImportError as e:
         print(f"✗ matrix import failed: {e}")
     
     try:
-        import thresholds
+        from my_bio_python import thresholds
         print("✓ thresholds module imported successfully")
     except ImportError as e:
         print(f"✗ thresholds import failed: {e}")
     
     try:
-        import minimal
+        from my_bio_python import minimal
         print("✓ minimal module imported successfully")
     except ImportError as e:
         print(f"✗ minimal import failed: {e}")
     
     # Test the main module
     try:
-        import __init__ as motifs
+        import my_bio_python as motifs
         print("✓ main motifs module imported successfully")
     except ImportError as e:
         print(f"✗ main motifs import failed: {e}")

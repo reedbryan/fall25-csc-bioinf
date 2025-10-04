@@ -16,7 +16,21 @@ import numbers
 
 import numpy as np
 
-from Bio.Seq import Seq
+# Simple Seq replacement - just a string wrapper
+class Seq:
+    def __init__(self, sequence):
+        self.sequence = str(sequence)
+    
+    def __str__(self):
+        return self.sequence
+    
+    def __len__(self):
+        return len(self.sequence)
+    
+    def reverse_complement(self):
+        complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
+        rc = ''.join(complement.get(base, base) for base in reversed(self.sequence))
+        return Seq(rc)
 
 # from . import _pwm  # type: ignore
 try:

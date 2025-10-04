@@ -7,8 +7,8 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-import __init__ as motifs
-import minimal
+import my_bio_python as motifs
+from my_bio_python import minimal
 
 def test_meme_files():
     """Test parsing and analysis of MEME format files."""

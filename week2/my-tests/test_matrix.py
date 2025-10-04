@@ -9,7 +9,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import numpy as np
-from matrix import FrequencyPositionMatrix, PositionWeightMatrix
+from my_bio_python.matrix import FrequencyPositionMatrix, PositionWeightMatrix
 
 def test_matrix_functionality():
     """Test basic matrix operations."""

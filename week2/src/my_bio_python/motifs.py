@@ -96,7 +96,7 @@ def parse(handle, fmt, strict=True):
 
         return meme.read(handle)
     elif fmt == "minimal":
-        from Bio.motifs import minimal
+        from . import minimal
 
         return minimal.read(handle)
     elif fmt == "clusterbuster":
@@ -190,7 +190,7 @@ class Motif:
 
     def __init__(self, alphabet="ACGT", alignment=None, counts=None):
         """Initialize the class."""
-        import matrix
+        from . import matrix
 
         self.name = ""
         if counts is not None and alignment is not None:

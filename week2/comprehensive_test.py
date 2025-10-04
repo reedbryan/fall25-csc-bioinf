@@ -8,9 +8,9 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-import __init__ as motifs
-import minimal
-import matrix
+import my_bio_python as motifs
+from my_bio_python import minimal
+from my_bio_python import matrix
 import numpy as np
 from io import StringIO
 
@@ -342,7 +342,7 @@ def main():
     print("• MA0056.1.transfac & transfac.dat (TRANSFAC)")
     print("• alignace.out (AlignACE)")
     
-    print(f"\nEstimated code coverage increase: ~75-85%")
+    print(f"\nEstimated code coverage: ~75-85%")
 
 
 if __name__ == "__main__":
