@@ -1,0 +1,169 @@
+"""Tools for sequence motif analysis.
+
+Core Motif class and utility functions for motif analysis.
+"""
+
+import warnings
+from typing import Dict, List, Optional, TextIO
+from . import matrix
+
+
+# Simple Alignment replacement - just store the sequences
+class Alignment:
+    sequences: List[str]
+    length: int
+    
+    def __init__(self, sequences: List[str]):
+        self.sequences = sequences
+        self.length = len(sequences[0]) if sequences else 0
+
+
+class Motif:
+    """Represents a sequence motif."""
+    
+    name: str
+    alphabet: str
+    length: int
+    counts: matrix.FrequencyPositionMatrix
+    pwm: Optional[matrix.PositionWeightMatrix]
+    pssm: Optional[matrix.PositionSpecificScoringMatrix]
+    background: Dict[str, float]
+    pseudocounts: Dict[str, float]
+    
+    def __init__(self, alignment: Optional[Alignment] = None, alphabet: str = "ACGT"):
+        self.name = ""
+        self.alphabet = alphabet
+        self.length = 0
+        self.pwm = None
+        self.pssm = None
+        
+        # Default background and pseudocounts
+        bg_freq = 1.0 / len(alphabet)
+        self.background = {letter: bg_freq for letter in alphabet}
+        self.pseudocounts = {letter: 0.0 for letter in alphabet}
+        
+        if alignment:
+            self._build_from_alignment(alignment)
+    
+    def _build_from_alignment(self, alignment: Alignment):
+        """Build motif from alignment."""
+        if not alignment.sequences:
+            return
+        
+        self.length = alignment.length
+        
+        # Count occurrences
+        counts: Dict[str, List[int]] = {}
+        for letter in self.alphabet:
+            counts[letter] = [0] * self.length
+        
+        for sequence in alignment.sequences:
+            for i, letter in enumerate(sequence):
+                if i < self.length and letter in self.alphabet:
+                    counts[letter][i] += 1
+        
+        self.counts = matrix.FrequencyPositionMatrix(self.alphabet, counts)
+    
+    @property
+    def consensus(self) -> str:
+        """Return the consensus sequence."""
+        return self.counts.consensus
+    
+    @property
+    def anticonsensus(self) -> str:
+        """Return the anticonsensus sequence."""
+        return self.counts.anticonsensus
+    
+    @property
+    def degenerate_consensus(self) -> str:
+        """Return the degenerate consensus sequence."""
+        return self.counts.degenerate_consensus
+    
+    def __len__(self) -> int:
+        return self.length
+    
+    def __getitem__(self, index) -> "Motif":
+        """Slice the motif."""
+        if isinstance(index, slice):
+            start = index.start or 0
+            stop = index.stop or self.length
+            
+            # Create new counts for sliced motif
+            new_counts: Dict[str, List[int]] = {}
+            for letter in self.alphabet:
+                new_counts[letter] = []
+                for i in range(start, min(stop, self.length)):
+                    new_counts[letter].append(int(self.counts[letter][i]))
+            
+            # Create new motif
+            new_motif = Motif(alphabet=self.alphabet)
+            new_motif.counts = matrix.FrequencyPositionMatrix(self.alphabet, new_counts)
+            new_motif.length = len(new_counts[self.alphabet[0]])
+            new_motif.name = self.name + f"[{start}:{stop}]"
+            
+            return new_motif
+        else:
+            raise TypeError("Motif indices must be slices")
+    
+    def reverse_complement(self) -> "Motif":
+        """Return reverse complement of the motif."""
+        rc_motif = Motif(alphabet=self.alphabet)
+        rc_motif.counts = self.counts.reverse_complement()
+        rc_motif.length = self.length
+        rc_motif.name = self.name + "_rc"
+        return rc_motif
+    
+    def _get_pwm(self) -> matrix.PositionWeightMatrix:
+        """Get or create PWM."""
+        if self.pwm is None:
+            self.pwm = self.counts.normalize()
+        return self.pwm
+    
+    def _get_pssm(self) -> matrix.PositionSpecificScoringMatrix:
+        """Get or create PSSM."""
+        if self.pssm is None:
+            pwm = self._get_pwm()
+            self.pssm = pwm.log_odds(self.background)
+        return self.pssm
+
+
+def create(instances: List[str], alphabet: str = "ACGT") -> Motif:
+    """Create a Motif object from sequence instances."""
+    alignment = Alignment(instances)
+    return Motif(alignment=alignment, alphabet=alphabet)
+
+
+def create_from_counts(counts: Dict[str, List[int]], alphabet: str = "ACGT") -> Motif:
+    """Create a Motif object from count matrix."""
+    motif = Motif(alphabet=alphabet)
+    motif.counts = matrix.FrequencyPositionMatrix(alphabet, counts)
+    motif.length = len(counts[alphabet[0]]) if alphabet and alphabet[0] in counts else 0
+    return motif
+
+
+def parse(handle: TextIO, fmt: str, strict: bool = True):
+    """Parse an output file from a motif finding program."""
+    fmt = fmt.lower()
+    if fmt == "alignace":
+        raise NotImplementedError("AlignACE format not yet implemented")
+    elif fmt == "meme" or fmt == "minimal":
+        from . import minimal
+        return minimal.read(handle)
+    elif fmt == "clusterbuster":
+        raise NotImplementedError("ClusterBuster format not yet implemented")
+    elif fmt in ("pfm-four-columns", "pfm-four-rows"):
+        raise NotImplementedError("PFM format not yet implemented")
+    elif fmt == "xms":
+        raise NotImplementedError("XMS format not yet implemented")
+    elif fmt == "mast":
+        raise NotImplementedError("MAST format not yet implemented")
+    elif fmt == "transfac":
+        raise NotImplementedError("TRANSFAC format not yet implemented")
+    elif fmt in ("pfm", "sites", "jaspar"):
+        raise NotImplementedError("JASPAR format not yet implemented")
+    else:
+        raise ValueError(f"Unknown format {fmt}")
+
+
+if __name__ == "__main__":
+    print("bio_codon motifs module loaded successfully")

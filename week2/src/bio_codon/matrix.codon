@@ -1,0 +1,260 @@
+"""Support for various forms of sequence motif matrices.
+
+Implementation of frequency (count) matrices, position-weight matrices,
+and position-specific scoring matrices.
+"""
+
+import math
+from typing import Dict, List, Optional, Tuple
+
+# Simple Seq replacement - just a string wrapper
+class Seq:
+    sequence: str
+    
+    def __init__(self, sequence: str):
+        self.sequence = sequence
+    
+    def __str__(self) -> str:
+        return self.sequence
+    
+    def __len__(self) -> int:
+        return len(self.sequence)
+    
+    def reverse_complement(self):
+        complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
+        rc = ""
+        for base in reversed(self.sequence):
+            rc += complement.get(base, base)
+        return Seq(rc)
+
+
+class GenericPositionMatrix:
+    """Base class for the support of position matrix operations."""
+    
+    length: int
+    alphabet: str
+    
+    def __init__(self, alphabet: str, values: Dict[str, List[float]]):
+        """Initialize the class."""
+        self.alphabet = alphabet
+        self.length = 0
+        
+        # Set length from first alphabet letter
+        first_letter = alphabet[0]
+        if first_letter in values:
+            self.length = len(values[first_letter])
+        
+        # Validate all letters have same length
+        for letter in alphabet:
+            if letter in values:
+                if len(values[letter]) != self.length:
+                    raise ValueError(f"All letters must have same length, got {len(values[letter])} for {letter}")
+        
+        # Store values in dictionary-like structure
+        for letter in alphabet:
+            if letter in values:
+                setattr(self, f"_{letter}", values[letter])
+    
+    def __getitem__(self, letter: str) -> List[float]:
+        """Get values for a specific letter."""
+        return getattr(self, f"_{letter}")
+    
+    def __setitem__(self, letter: str, values: List[float]):
+        """Set values for a specific letter."""
+        setattr(self, f"_{letter}", values)
+
+
+class FrequencyPositionMatrix(GenericPositionMatrix):
+    """Represents a frequency position matrix (count matrix)."""
+    
+    def __init__(self, alphabet: str, counts: Dict[str, List[int]]):
+        # Convert counts to floats for consistency
+        float_counts: Dict[str, List[float]] = {}
+        for letter in alphabet:
+            if letter in counts:
+                float_counts[letter] = [float(x) for x in counts[letter]]
+        
+        super().__init__(alphabet, float_counts)
+    
+    @property
+    def consensus(self) -> str:
+        """Return the consensus sequence."""
+        sequence = ""
+        for i in range(self.length):
+            max_count = -1.0
+            max_letter = ""
+            for letter in self.alphabet:
+                count = self[letter][i]
+                if count > max_count:
+                    max_count = count
+                    max_letter = letter
+            sequence += max_letter
+        return sequence
+    
+    @property
+    def anticonsensus(self) -> str:
+        """Return the anticonsensus sequence."""
+        sequence = ""
+        for i in range(self.length):
+            min_count = float('inf')
+            min_letter = ""
+            for letter in self.alphabet:
+                count = self[letter][i]
+                if count < min_count:
+                    min_count = count
+                    min_letter = letter
+            sequence += min_letter
+        return sequence
+    
+    @property
+    def gc_content(self) -> float:
+        """Calculate GC content of the consensus."""
+        if self.alphabet != "ACGT":
+            return 0.0
+        
+        total_gc = 0.0
+        total_bases = 0.0
+        
+        for i in range(self.length):
+            total_bases += self["A"][i] + self["C"][i] + self["G"][i] + self["T"][i]
+            total_gc += self["C"][i] + self["G"][i]
+        
+        if total_bases == 0.0:
+            return 0.0
+        return total_gc / total_bases
+    
+    @property
+    def degenerate_consensus(self) -> str:
+        """Return the degenerate consensus sequence."""
+        # Simplified version - just return consensus for now
+        return self.consensus
+    
+    def normalize(self) -> "PositionWeightMatrix":
+        """Normalize to create a Position Weight Matrix."""
+        pwm_values: Dict[str, List[float]] = {}
+        
+        for letter in self.alphabet:
+            pwm_values[letter] = []
+        
+        for i in range(self.length):
+            # Calculate column sum
+            column_sum = 0.0
+            for letter in self.alphabet:
+                column_sum += self[letter][i]
+            
+            # Normalize each value
+            for letter in self.alphabet:
+                if column_sum > 0.0:
+                    pwm_values[letter].append(self[letter][i] / column_sum)
+                else:
+                    pwm_values[letter].append(0.0)
+        
+        return PositionWeightMatrix(self.alphabet, pwm_values)
+    
+    def reverse_complement(self) -> "FrequencyPositionMatrix":
+        """Return reverse complement of the matrix."""
+        if self.alphabet != "ACGT":
+            raise ValueError("Reverse complement only supported for DNA alphabet")
+        
+        rc_values: Dict[str, List[int]] = {"A": [], "C": [], "G": [], "T": []}
+        
+        for i in reversed(range(self.length)):
+            rc_values["A"].append(int(self["T"][i]))
+            rc_values["T"].append(int(self["A"][i]))
+            rc_values["C"].append(int(self["G"][i]))
+            rc_values["G"].append(int(self["C"][i]))
+        
+        return FrequencyPositionMatrix(self.alphabet, rc_values)
+
+
+class PositionWeightMatrix(GenericPositionMatrix):
+    """Represents a position weight matrix (frequency matrix)."""
+    
+    def __init__(self, alphabet: str, values: Dict[str, List[float]]):
+        super().__init__(alphabet, values)
+    
+    def log_odds(self, background: Optional[Dict[str, float]] = None) -> "PositionSpecificScoringMatrix":
+        """Create a Position Specific Scoring Matrix (PSSM)."""
+        if background is None:
+            # Default uniform background
+            bg_prob = 1.0 / len(self.alphabet)
+            background = {letter: bg_prob for letter in self.alphabet}
+        
+        pssm_values: Dict[str, List[float]] = {}
+        for letter in self.alphabet:
+            pssm_values[letter] = []
+        
+        for i in range(self.length):
+            for letter in self.alphabet:
+                freq = self[letter][i]
+                bg = background[letter]
+                if freq > 0.0 and bg > 0.0:
+                    pssm_values[letter].append(math.log2(freq / bg))
+                else:
+                    pssm_values[letter].append(float('-inf'))
+        
+        return PositionSpecificScoringMatrix(self.alphabet, pssm_values)
+
+
+class PositionSpecificScoringMatrix(GenericPositionMatrix):
+    """Represents a position-specific scoring matrix (PSSM)."""
+    
+    def __init__(self, alphabet: str, values: Dict[str, List[float]]):
+        super().__init__(alphabet, values)
+    
+    @property
+    def max(self) -> float:
+        """Return the maximum possible score."""
+        max_score = 0.0
+        for i in range(self.length):
+            position_max = float('-inf')
+            for letter in self.alphabet:
+                score = self[letter][i]
+                if score != float('-inf') and score > position_max:
+                    position_max = score
+            if position_max != float('-inf'):
+                max_score += position_max
+        return max_score
+    
+    @property
+    def min(self) -> float:
+        """Return the minimum possible score."""
+        min_score = 0.0
+        for i in range(self.length):
+            position_min = float('inf')
+            for letter in self.alphabet:
+                score = self[letter][i]
+                if score != float('-inf') and score < position_min:
+                    position_min = score
+            if position_min != float('inf'):
+                min_score += position_min
+            else:
+                return float('-inf')
+        return min_score
+    
+    def calculate(self, sequence: str) -> List[float]:
+        """Calculate scores for all positions in a sequence."""
+        scores: List[float] = []
+        
+        for start in range(len(sequence) - self.length + 1):
+            score = 0.0
+            valid = True
+            
+            for i in range(self.length):
+                letter = sequence[start + i]
+                if letter in self.alphabet:
+                    letter_score = self[letter][i]
+                    if letter_score == float('-inf'):
+                        valid = False
+                        break
+                    score += letter_score
+                else:
+                    valid = False
+                    break
+            
+            if valid:
+                scores.append(score)
+            else:
+                scores.append(float('-inf'))
+        
+        return scores

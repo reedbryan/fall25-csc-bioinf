@@ -1,0 +1,168 @@
+"""Module for the support of MEME minimal motif format."""
+
+import re
+from typing import List, Dict, Optional, TextIO, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from . import matrix
+
+
+class Record:
+    """Represents a MEME minimal record."""
+    
+    def __init__(self):
+        self.version: str = ""
+        self.alphabet: str = ""
+        self.background: Dict[str, float] = {}
+        self.motifs: List[Dict] = []  # Store as dict initially, convert later
+        self.command: str = ""
+        self.datafile: str = ""
+    
+    def __len__(self) -> int:
+        return len(self.motifs)
+    
+    def __getitem__(self, index):
+        if isinstance(index, int):
+            return self.motifs[index]
+        # For string index, find by name
+        for motif in self.motifs:
+            if motif.get("name") == index:
+                return motif
+        raise KeyError(f"Motif {index} not found")
+    
+    def __iter__(self):
+        return iter(self.motifs)
+
+
+def read(handle: TextIO) -> Record:
+    """Parse the text output of the MEME program into a Record object."""
+    
+    record = Record()
+    motif_number = 0
+    
+    # Read version
+    _read_version(record, handle)
+    
+    # Read alphabet  
+    _read_alphabet(record, handle)
+    
+    # Read background
+    _read_background(record, handle)
+    
+    # Read motifs
+    for line in handle:
+        line = line.strip()
+        if line.startswith("MOTIF"):
+            motif_data = _read_motif(record, handle, line, motif_number)
+            if motif_data:
+                record.motifs.append(motif_data)
+                motif_number += 1
+    
+    return record
+
+
+def _read_version(record: Record, handle: TextIO):
+    """Read MEME version from handle."""
+    for line in handle:
+        line = line.strip()
+        if line.startswith("MEME version"):
+            record.version = line.split()[2]
+            break
+
+
+def _read_alphabet(record: Record, handle: TextIO):
+    """Read alphabet from handle."""
+    for line in handle:
+        line = line.strip()
+        if line.startswith("ALPHABET"):
+            # Try to extract alphabet
+            parts = line.split()
+            if len(parts) >= 2:
+                record.alphabet = parts[1]
+            else:
+                record.alphabet = "ACGT"  # Default
+            break
+
+
+def _read_background(record: Record, handle: TextIO):
+    """Read background frequencies from handle."""
+    for line in handle:
+        line = line.strip()
+        if line.startswith("Background letter frequencies"):
+            # Next line should contain frequencies
+            next_line = next(handle, "").strip()
+            _parse_background_line(record, next_line)
+            break
+
+
+def _parse_background_line(record: Record, line: str):
+    """Parse background frequency line."""
+    # Example: "A 0.25 C 0.25 G 0.25 T 0.25"
+    parts = line.split()
+    for i in range(0, len(parts), 2):
+        if i + 1 < len(parts):
+            letter = parts[i]
+            try:
+                freq = float(parts[i + 1])
+                record.background[letter] = freq
+            except ValueError:
+                pass
+
+
+def _read_motif(record: Record, handle: TextIO, motif_line: str, motif_number: int) -> Optional[Dict]:
+    """Read a single motif from the handle."""
+    
+    # Parse motif header: "MOTIF name alt_name"
+    parts = motif_line.split()
+    if len(parts) < 2:
+        return None
+    
+    motif_name = parts[1]
+    alt_name = parts[2] if len(parts) > 2 else ""
+    
+    # Look for letter-probability matrix
+    counts: Dict[str, List[int]] = {}
+    alphabet = record.alphabet if record.alphabet else "ACGT"
+    
+    for letter in alphabet:
+        counts[letter] = []
+    
+    # Read matrix
+    matrix_started = False
+    for line in handle:
+        line = line.strip()
+        
+        if line.startswith("letter-probability matrix"):
+            matrix_started = True
+            continue
+        
+        if matrix_started:
+            if line and not line.startswith("URL"):
+                # Try to parse matrix row
+                try:
+                    values = [float(x) for x in line.split()]
+                    if len(values) == len(alphabet):
+                        for i, letter in enumerate(alphabet):
+                            # Convert probability to count (simplified)
+                            counts[letter].append(int(values[i] * 100))
+                except ValueError:
+                    break
+            else:
+                break
+    
+    if not any(counts.values()):
+        return None
+    
+    # Return motif data as dict
+    return {
+        "name": motif_name,
+        "alt_name": alt_name,
+        "counts": counts,
+        "alphabet": alphabet
+    }
+
+
+def _parse_name(line: str) -> str:
+    """Extract motif name from line."""
+    # Simple implementation - just return the line stripped
+    return line.strip()
