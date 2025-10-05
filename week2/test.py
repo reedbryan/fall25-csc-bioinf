@@ -270,32 +270,5 @@ test_data_file_access()
 # Final summary
 if __codon__:
     print("\n🚀 All Codon tests completed successfully!")
-    print("✓ Static compilation performance benefits demonstrated")
-    print("✓ Type safety and optimization confirmed")
-    if MODULES_AVAILABLE:
-        print("✓ YOUR ACTUAL bio_codon MODULES TESTED AND WORKING!")
-        print("✓ bio_codon motif consensus, PWM, and PSSM functionality verified")
-        print("✓ bio_codon count matrices and bioinformatics algorithms tested")
-        print("✓ Compiled .codon files successfully imported and executed")
-        print("✓ Python imports successfully removed for Codon compatibility")
-    else:
-        print("✓ Bioinformatics algorithms tested with Codon")
-        print("📋 Check bio_codon module imports if needed")
-    print("✓ Cross-platform compatibility verified")
 else:
     print("\n🐍 Python tests completed successfully!")
-    print("ℹ  For bio_codon module testing with static compilation, run: codon run test.py")
-
-print("✨ Bioinformatics algorithm testing complete!")
-print("📋 Assignment format requirements met:")
-print("  ✅ Single test.py file")
-print("  ✅ @test decorators on functions")
-print("  ✅ if __codon__: conditional logic")
-print("  ✅ Functions called after definition")
-print("  ✅ Cross-platform compatibility")
-print("  ✅ Data file access demonstrated")
-if __codon__ and MODULES_AVAILABLE:
-    print("  🎉 ACTUALLY TESTS YOUR REAL bio_codon MODULES!")
-    print("  🎉 Imports and uses your sophisticated .codon implementations!")
-    print("  🎉 Demonstrates static compilation benefits of Codon!")
-    print("  🚀 Ready for assignment submission!")
