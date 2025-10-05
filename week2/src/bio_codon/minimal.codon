@@ -1,10 +1,10 @@
 """Module for the support of MEME minimal motif format."""
 
 import re
-from typing import List, Dict, Optional, TextIO, TYPE_CHECKING
+from typing import List, Dict, Optional
 
-if TYPE_CHECKING:
-    from . import matrix
+# Removed TYPE_CHECKING for Codon compatibility
+from . import matrix
 
 
 class Record:
@@ -34,7 +34,7 @@ class Record:
         return iter(self.motifs)
 
 
-def read(handle: TextIO) -> Record:
+def read(handle) -> Record:
     """Parse the text output of the MEME program into a Record object."""
     
     record = Record()
@@ -61,7 +61,7 @@ def read(handle: TextIO) -> Record:
     return record
 
 
-def _read_version(record: Record, handle: TextIO):
+def _read_version(record: Record, handle):
     """Read MEME version from handle."""
     for line in handle:
         line = line.strip()
@@ -70,7 +70,7 @@ def _read_version(record: Record, handle: TextIO):
             break
 
 
-def _read_alphabet(record: Record, handle: TextIO):
+def _read_alphabet(record: Record, handle):
     """Read alphabet from handle."""
     for line in handle:
         line = line.strip()
@@ -84,7 +84,7 @@ def _read_alphabet(record: Record, handle: TextIO):
             break
 
 
-def _read_background(record: Record, handle: TextIO):
+def _read_background(record: Record, handle):
     """Read background frequencies from handle."""
     for line in handle:
         line = line.strip()
@@ -109,7 +109,7 @@ def _parse_background_line(record: Record, line: str):
                 pass
 
 
-def _read_motif(record: Record, handle: TextIO, motif_line: str, motif_number: int) -> Optional[Dict]:
+def _read_motif(record: Record, handle, motif_line: str, motif_number: int) -> Optional[Dict]:
     """Read a single motif from the handle."""
     
     # Parse motif header: "MOTIF name alt_name"
