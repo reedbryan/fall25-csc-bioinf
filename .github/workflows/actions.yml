@@ -24,15 +24,15 @@ jobs:
           pip install numpy biopython
       - name: Set up Codon Python bridge
         run: |
-          export CODON_PYTHON=$(curl -L https://raw.githubusercontent.com/exaloop/codon/refs/heads/develop/test/python/find-python-library.py | python)
+          pip install find_libpython
+          export CODON_PYTHON=$(find_libpython)
           echo "Found Python at: ${CODON_PYTHON}"
+          echo "CODON_PYTHON=${CODON_PYTHON}" >> $GITHUB_ENV
+          pip install matplotlib  # Dependencies for week1
+          pip install biotite  # Dependencies for week2
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: Test Week 2 with Python
+      - name: Week 3
         run: |
-          cd week2
+          cd week3
           python test.py
-      - name: Test Week 2 with Codon
-        run: |
-          cd week2
-          codon run test.py
