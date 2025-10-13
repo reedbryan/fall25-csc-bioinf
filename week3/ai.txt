@@ -1,0 +1,14 @@
+1. "This is the description for my assignment, create a plan for how I should complete it:
+
+Your job is to port biotite’s phylo package to Codon. Note that the source is written in Cython, not pure Python.
+
+The source code can be found on Github. You only need to port the parts needed to run the two tests in test_phylo.py:
+
+test_distances,
+test_upgma,
+test_neighbor_joining.
+While you can use from python import for missing pieces, note that this is not needed here.
+
+You must run Python and Codon tests and output the time of all tests in milliseconds. Use the time module in Python and Codon (do not time this from your evaluate.sh)."
+
+RESPONSE: 

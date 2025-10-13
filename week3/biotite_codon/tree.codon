@@ -1,0 +1,85 @@
+import math
+from typing import List, Optional
+
+class TreeNode:
+    """
+    A node in a tree.
+    """
+    
+    def __init__(self, children: Optional[List['TreeNode']] = None, parent: Optional['TreeNode'] = None):
+        if children is None:
+            children = []
+        self.children: List['TreeNode'] = children
+        self.parent: Optional['TreeNode'] = parent
+        self.distance: float = 0.0
+        
+    def add_child(self, child: 'TreeNode'):
+        """Add a child node."""
+        self.children.append(child)
+        child.parent = self
+        
+    def distance_to(self, other: 'TreeNode') -> float:
+        """Calculate distance to another node."""
+        # Find path to root from self
+        path_self: List['TreeNode'] = []
+        current = self
+        while current is not None:
+            path_self.append(current)
+            current = current.parent
+            
+        # Find path to root from other
+        path_other: List['TreeNode'] = []
+        current = other
+        while current is not None:
+            path_other.append(current)
+            current = current.parent
+            
+        # Find common ancestor
+        path_self.reverse()
+        path_other.reverse()
+        
+        common_length = 0
+        for i in range(min(len(path_self), len(path_other))):
+            if path_self[i] is path_other[i]:
+                common_length = i + 1
+            else:
+                break
+                
+        # Calculate total distance
+        dist = 0.0
+        
+        # Distance from self to common ancestor
+        for i in range(common_length, len(path_self)):
+            dist += path_self[i].distance
+            
+        # Distance from common ancestor to other
+        for i in range(common_length, len(path_other)):
+            dist += path_other[i].distance
+            
+        return dist
+
+class Tree:
+    """
+    A tree data structure for phylogenetic analysis.
+    """
+    
+    def __init__(self, root: Optional[TreeNode] = None):
+        self.root: Optional[TreeNode] = root
+        self._leaves: Optional[List[TreeNode]] = None
+        
+    @property
+    def leaves(self) -> List[TreeNode]:
+        """Get all leaf nodes in the tree."""
+        if self._leaves is None:
+            self._leaves = []
+            if self.root is not None:
+                self._collect_leaves(self.root, self._leaves)
+        return self._leaves
+        
+    def _collect_leaves(self, node: TreeNode, leaf_list: List[TreeNode]):
+        """Recursively collect leaf nodes."""
+        if len(node.children) == 0:
+            leaf_list.append(node)
+        else:
+            for child in node.children:
+                self._collect_leaves(child, leaf_list)

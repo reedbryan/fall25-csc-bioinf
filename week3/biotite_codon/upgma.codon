@@ -1,0 +1,111 @@
+import math
+from .tree import Tree, TreeNode
+from typing import List
+
+def upgma(distance_matrix) -> Tree:
+    """
+    Perform UPGMA clustering to build a phylogenetic tree.
+    
+    Parameters
+    ----------
+    distance_matrix : array-like
+        Symmetric distance matrix
+        
+    Returns
+    -------
+    Tree
+        The resulting phylogenetic tree
+    """
+    n = len(distance_matrix)
+    
+    # Create initial nodes (leaves)
+    nodes: List[TreeNode] = []
+    for i in range(n):
+        node = TreeNode()
+        nodes.append(node)
+    
+    # Create working distance matrix
+    distances: List[List[float]] = []
+    for i in range(n):
+        row: List[float] = []
+        for j in range(n):
+            row.append(float(distance_matrix[i][j]))
+        distances.append(row)
+    
+    # Cluster sizes (initially 1 for each leaf)
+    cluster_sizes: List[int] = [1] * n
+    
+    # UPGMA algorithm
+    while len(nodes) > 1:
+        # Find minimum distance
+        min_dist = float('inf')
+        min_i = 0
+        min_j = 1
+        
+        for i in range(len(nodes)):
+            for j in range(i + 1, len(nodes)):
+                if distances[i][j] < min_dist:
+                    min_dist = distances[i][j]
+                    min_i = i
+                    min_j = j
+        
+        # Create new internal node
+        new_node = TreeNode()
+        
+        # Add children
+        new_node.add_child(nodes[min_i])
+        new_node.add_child(nodes[min_j])
+        
+        # Set distances (half of the cluster distance)
+        nodes[min_i].distance = min_dist / 2.0
+        nodes[min_j].distance = min_dist / 2.0
+        
+        # Create new nodes list and distance matrix
+        new_nodes: List[TreeNode] = []
+        new_cluster_sizes: List[int] = []
+        
+        # Add remaining nodes
+        for i in range(len(nodes)):
+            if i != min_i and i != min_j:
+                new_nodes.append(nodes[i])
+                new_cluster_sizes.append(cluster_sizes[i])
+        
+        # Add the new cluster
+        new_nodes.append(new_node)
+        new_cluster_sizes.append(cluster_sizes[min_i] + cluster_sizes[min_j])
+        
+        # Calculate new distance matrix
+        new_distances: List[List[float]] = []
+        
+        for i in range(len(new_nodes)):
+            row: List[float] = []
+            for j in range(len(new_nodes)):
+                if i == j:
+                    row.append(0.0)
+                elif i < len(new_nodes) - 1 and j < len(new_nodes) - 1:
+                    # Map back to old indices
+                    old_i = i if i < min_i else (i + 1 if i + 1 < min_j else i + 2)
+                    old_j = j if j < min_i else (j + 1 if j + 1 < min_j else j + 2)
+                    row.append(distances[old_i][old_j])
+                elif i == len(new_nodes) - 1:
+                    # Distance from new cluster to existing node j
+                    old_j = j if j < min_i else (j + 1 if j + 1 < min_j else j + 2)
+                    new_dist = (distances[min_i][old_j] * cluster_sizes[min_i] + 
+                               distances[min_j][old_j] * cluster_sizes[min_j]) / (cluster_sizes[min_i] + cluster_sizes[min_j])
+                    row.append(new_dist)
+                elif j == len(new_nodes) - 1:
+                    # Distance from existing node i to new cluster
+                    old_i = i if i < min_i else (i + 1 if i + 1 < min_j else i + 2)
+                    new_dist = (distances[old_i][min_i] * cluster_sizes[min_i] + 
+                               distances[old_i][min_j] * cluster_sizes[min_j]) / (cluster_sizes[min_i] + cluster_sizes[min_j])
+                    row.append(new_dist)
+                else:
+                    row.append(0.0)
+            new_distances.append(row)
+        
+        nodes = new_nodes
+        distances = new_distances
+        cluster_sizes = new_cluster_sizes
+    
+    # Return tree with the last remaining node as root
+    return Tree(nodes[0])

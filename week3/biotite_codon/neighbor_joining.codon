@@ -1,0 +1,128 @@
+import math
+from .tree import Tree, TreeNode
+from typing import List
+
+def neighbor_joining(distance_matrix) -> Tree:
+    """
+    Perform neighbor-joining to build a phylogenetic tree.
+    
+    Parameters
+    ----------
+    distance_matrix : array-like
+        Symmetric distance matrix
+        
+    Returns
+    -------
+    Tree
+        The resulting phylogenetic tree
+    """
+    n = len(distance_matrix)
+    
+    # Create initial nodes
+    nodes: List[TreeNode] = []
+    for i in range(n):
+        node = TreeNode()
+        nodes.append(node)
+    
+    # Create working distance matrix
+    distances: List[List[float]] = []
+    for i in range(n):
+        row: List[float] = []
+        for j in range(n):
+            row.append(float(distance_matrix[i][j]))
+        distances.append(row)
+    
+    # Neighbor-joining algorithm
+    while len(nodes) > 2:
+        num_nodes = len(nodes)
+        
+        # Calculate Q matrix
+        q_matrix: List[List[float]] = []
+        for i in range(num_nodes):
+            row: List[float] = []
+            for j in range(num_nodes):
+                if i == j:
+                    row.append(0.0)
+                else:
+                    # Calculate sum of distances for i and j
+                    sum_i = sum(distances[i])
+                    sum_j = sum(distances[j])
+                    q_value = (num_nodes - 2) * distances[i][j] - sum_i - sum_j
+                    row.append(q_value)
+            q_matrix.append(row)
+        
+        # Find minimum Q value
+        min_q = float('inf')
+        min_i = 0
+        min_j = 1
+        
+        for i in range(num_nodes):
+            for j in range(i + 1, num_nodes):
+                if q_matrix[i][j] < min_q:
+                    min_q = q_matrix[i][j]
+                    min_i = i
+                    min_j = j
+        
+        # Create new internal node
+        new_node = TreeNode()
+        
+        # Calculate branch lengths
+        sum_i = sum(distances[min_i])
+        sum_j = sum(distances[min_j])
+        
+        dist_i = distances[min_i][min_j] / 2.0 + (sum_i - sum_j) / (2.0 * (num_nodes - 2))
+        dist_j = distances[min_i][min_j] - dist_i
+        
+        # Add children with distances
+        new_node.add_child(nodes[min_i])
+        new_node.add_child(nodes[min_j])
+        nodes[min_i].distance = dist_i
+        nodes[min_j].distance = dist_j
+        
+        # Create new nodes list
+        new_nodes: List[TreeNode] = []
+        for k in range(num_nodes):
+            if k != min_i and k != min_j:
+                new_nodes.append(nodes[k])
+        new_nodes.append(new_node)
+        
+        # Calculate distances to new node
+        new_distances: List[List[float]] = []
+        
+        for i in range(len(new_nodes)):
+            row: List[float] = []
+            for j in range(len(new_nodes)):
+                if i == j:
+                    row.append(0.0)
+                elif i < len(new_nodes) - 1 and j < len(new_nodes) - 1:
+                    # Map back to old indices
+                    old_i = i if i < min_i else (i + 1 if i + 1 < min_j else i + 2)
+                    old_j = j if j < min_i else (j + 1 if j + 1 < min_j else j + 2)
+                    row.append(distances[old_i][old_j])
+                elif i == len(new_nodes) - 1:
+                    # Distance from new node to existing node j
+                    old_j = j if j < min_i else (j + 1 if j + 1 < min_j else j + 2)
+                    new_dist = (distances[min_i][old_j] + distances[min_j][old_j] - distances[min_i][min_j]) / 2.0
+                    row.append(new_dist)
+                elif j == len(new_nodes) - 1:
+                    # Distance from existing node i to new node
+                    old_i = i if i < min_i else (i + 1 if i + 1 < min_j else i + 2)
+                    new_dist = (distances[old_i][min_i] + distances[old_i][min_j] - distances[min_i][min_j]) / 2.0
+                    row.append(new_dist)
+                else:
+                    row.append(0.0)
+            new_distances.append(row)
+        
+        nodes = new_nodes
+        distances = new_distances
+    
+    # Connect the last two nodes
+    if len(nodes) == 2:
+        root = TreeNode()
+        root.add_child(nodes[0])
+        root.add_child(nodes[1])
+        nodes[0].distance = distances[0][1] / 2.0
+        nodes[1].distance = distances[0][1] / 2.0
+        return Tree(root)
+    
+    return Tree(nodes[0])

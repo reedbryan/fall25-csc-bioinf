@@ -1,8 +1,22 @@
 import numpy as np
 import time
-import biotite
-import biotite.sequence.phylo as phylo
 
+# Conditional imports based on environment
+__codon__ = False  # Toggle this for Codon testing
+
+if __codon__:
+    from biotite_codon import upgma, neighbor_joining
+else:
+    import biotite.sequence.phylo as phylo
+    upgma = phylo.upgma
+    neighbor_joining = phylo.neighbor_joining
+
+# Define @test decorator for compatibility
+def test(func):
+    """Test decorator for compatibility with both Python and Codon"""
+    return func
+
+@test
 def test_distances():
     """Test phylogenetic distance calculations"""
     start_time = time.time()
@@ -16,7 +30,7 @@ def test_distances():
     ])
     
     # Create tree via UPGMA
-    tree = phylo.upgma(dist_matrix)
+    tree = upgma(dist_matrix)
     
     # Tree is created via UPGMA
     # -> The distances to root should be equal for all leaf nodes
@@ -30,6 +44,7 @@ def test_distances():
     print(f"test_distances: {runtime_ms:.2f} ms")
     print("  ✓ distance calculations")
 
+@test
 def test_upgma():
     """Test UPGMA clustering algorithm"""
     start_time = time.time()
@@ -43,7 +58,7 @@ def test_upgma():
     ])
     
     # Create tree using UPGMA
-    tree = phylo.upgma(dist_matrix)
+    tree = upgma(dist_matrix)
     
     # Basic validation - tree should have correct number of leaves
     assert len(tree.leaves) == len(dist_matrix)
@@ -56,6 +71,7 @@ def test_upgma():
     print(f"test_upgma: {runtime_ms:.2f} ms")
     print("  ✓ UPGMA algorithm")
 
+@test
 def test_neighbor_joining():
     """Test neighbor-joining tree construction"""
     start_time = time.time()
@@ -71,6 +87,53 @@ def test_neighbor_joining():
     ])
     
     # Create tree using neighbor-joining
+    # Execute all tests
+test_distances()
+test_upgma()
+test_neighbor_joining()
+
+if __name__ == "__main__":
+    print("=== Phylogenetic Algorithm Tests ===")
+    env = "Codon" if __codon__ else "Python"
+    print(f"Testing {env} implementation")
+    print()
+    
+    overall_start = time.time()
+    
+    tests = [test_distances, test_upgma, test_neighbor_joining]
+    test_results = []
+    
+    for test_func in tests:
+        try:
+            test_func()
+            test_results.append((test_func.__name__, "PASSED", None))
+        except Exception as e:
+            test_results.append((test_func.__name__, "FAILED", str(e)))
+            print(f"❌ {test_func.__name__} FAILED: {e}")
+    
+    overall_end = time.time()
+    total_runtime_ms = (overall_end - overall_start) * 1000
+    
+    print()
+    print("=== Test Results Summary ===")
+    
+    passed_count = 0
+    for test_name, status, error in test_results:
+        if status == "PASSED":
+            print(f"✅ {test_name}: {status}")
+            passed_count += 1
+        else:
+            print(f"❌ {test_name}: {status} - {error}")
+    
+    print(f"\nTests passed: {passed_count}/{len(tests)}")
+    print(f"Total runtime: {total_runtime_ms:.2f} ms")
+    
+    # Exit with error code if any tests failed
+    if passed_count < len(tests):
+        exit(1)
+    else:
+        print("🎉 All tests passed!")
+        exit(0)
     test_tree = phylo.neighbor_joining(dist)
     
     # Basic validation - tree should have correct number of leaves
