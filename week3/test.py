@@ -91,21 +91,37 @@ if __name__ == "__main__":
     
     overall_start = time.time()
     
-    try:
-        test_distances()
-        test_upgma() 
-        test_neighbor_joining()
-        
-        overall_end = time.time()
-        total_runtime_ms = (overall_end - overall_start) * 1000
-        
-        print()
-        print("=== Test Results ===")
-        print("All tests passed!")
-        print(f"Total runtime: {total_runtime_ms:.2f} ms")
-        
-    except Exception as e:
-        overall_end = time.time()
-        total_runtime_ms = (overall_end - overall_start) * 1000
-        print(f"Test failed: {e}")
-        print(f"Total runtime: {total_runtime_ms:.2f} ms")
+    tests = [test_distances, test_upgma, test_neighbor_joining]
+    test_results = []
+    
+    for test_func in tests:
+        try:
+            test_func()
+            test_results.append((test_func.__name__, "PASSED", None))
+        except Exception as e:
+            test_results.append((test_func.__name__, "FAILED", str(e)))
+            print(f"❌ {test_func.__name__} FAILED: {e}")
+    
+    overall_end = time.time()
+    total_runtime_ms = (overall_end - overall_start) * 1000
+    
+    print()
+    print("=== Test Results Summary ===")
+    
+    passed_count = 0
+    for test_name, status, error in test_results:
+        if status == "PASSED":
+            print(f"✅ {test_name}: {status}")
+            passed_count += 1
+        else:
+            print(f"❌ {test_name}: {status} - {error}")
+    
+    print(f"\nTests passed: {passed_count}/{len(tests)}")
+    print(f"Total runtime: {total_runtime_ms:.2f} ms")
+    
+    # Exit with error code if any tests failed
+    if passed_count < len(tests):
+        exit(1)
+    else:
+        print("🎉 All tests passed!")
+        exit(0)
