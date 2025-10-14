@@ -13,6 +13,11 @@ cp test.py test_codon.py
 # Set Codon version flag  
 sed -i 's/__codon__ = False/__codon__ = True/' test_codon.py
 
+# Remove python_imports.py to prevent Codon from trying to compile it
+if [ -f python_imports.py ]; then
+    mv python_imports.py python_imports.py.bak
+fi
+
 # Run Python tests and capture timing
 echo "Running Python tests..."
 python_output=$(python test_python.py 2>&1)
@@ -37,6 +42,11 @@ fi
 
 # Clean up temporary files
 rm test_python.py test_codon.py
+
+# Restore python_imports.py if it was backed up
+if [ -f python_imports.py.bak ]; then
+    mv python_imports.py.bak python_imports.py
+fi
 
 # Display results in requested format
 echo ""
