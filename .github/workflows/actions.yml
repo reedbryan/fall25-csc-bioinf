@@ -35,4 +35,4 @@ jobs:
       - name: Week 3
         run: |
           cd week3
-          python test.py
+          bash evaluate.sh
