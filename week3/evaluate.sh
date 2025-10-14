@@ -10,8 +10,24 @@ cp test.py test_codon.py
 # Set Python version flag (leave as False)
 # No change needed for test_python.py
 
-# Set Codon version flag  
+# Set Codon version flag using a more explicit approach
+echo "Original codon flag:"
+head -n 10 test_codon.py | grep "__codon__"
+
+# Try the sed replacement
 sed -i 's/__codon__ = False/__codon__ = True/' test_codon.py
+
+# Check if it worked
+echo "After sed replacement:"
+head -n 10 test_codon.py | grep "__codon__"
+
+# If sed didn't work, try alternative approach
+if grep -q "__codon__ = False" test_codon.py; then
+    echo "Sed failed, trying alternative approach..."
+    sed -i '5s/False/True/' test_codon.py
+    echo "After alternative replacement:"
+    head -n 10 test_codon.py | grep "__codon__"
+fi
 
 # Run Python tests and capture timing
 echo "Running Python tests..."
