@@ -3,48 +3,16 @@
 echo "=== Week 3 Phylogenetic Algorithm Evaluation ==="
 echo ""
 
-# Remove python_imports.py to prevent Codon from trying to compile it
-if [ -f python_imports.py ]; then
-    mv python_imports.py python_imports.py.bak
-fi
-
-# Remove old codon_imports.py if it exists (we use codon_imports.codon now)
-if [ -f codon_imports.py ]; then
-    rm codon_imports.py
-fi
-
-# Create temporary files for Python and Codon versions
-cp test.py test_python.py
-cp test.py test_codon.py
-
-# Set Python version flag (leave as False)
-# No change needed for test_python.py
-
-# Set Codon version flag and remove python_imports references
-sed -i 's/__codon__ = False/__codon__ = True/' test_codon.py
-# Replace the problematic import line with a pass statement to maintain syntax
-sed -i 's/from python_imports import upgma, neighbor_joining/pass  # python_imports removed for codon/' test_codon.py
-
-# Debug: Check what's in the test_codon.py file (just the imports section)
-echo "=== DEBUG: Contents of test_codon.py after modification ==="
-head -n 25 test_codon.py
-echo "=== END DEBUG ==="
-
-# Debug: Check what files exist
-echo "=== DEBUG: Files in directory ==="
-ls -la *.py *.codon 2>/dev/null || echo "No matching files"
-echo "=== END DEBUG ==="
-
 # Run Python tests and capture timing
 echo "Running Python tests..."
-python_output=$(python test_python.py 2>&1)
+python_output=$(python test_python_clean.py 2>&1)
 echo "Python output: $python_output"
 
 # Extract runtime - look for any line containing "runtime" and numbers
 python_time=$(echo "$python_output" | grep -i "Total.*runtime:" | sed 's/.*runtime: //' | sed 's/ms.*//')
 if [ -z "$python_time" ]; then
     # Check if it's a biotite availability error
-    if echo "$python_output" | grep -q "biotite package not available"; then
+    if echo "$python_output" | grep -q "biotite" && echo "$python_output" | grep -q "not"; then
         python_time="BIOTITE_MISSING"
     else
         python_time="ERROR"
@@ -53,21 +21,13 @@ fi
 
 # Run Codon tests and capture timing  
 echo "Running Codon tests..."
-codon_output=$(codon run test_codon.py 2>&1)
+codon_output=$(codon run test_codon_clean.py 2>&1)
 echo "Codon output: $codon_output"
 
 # Extract runtime - look for any line containing "runtime" and numbers
 codon_time=$(echo "$codon_output" | grep -i "Total.*runtime:" | sed 's/.*runtime: //' | sed 's/ms.*//')
 if [ -z "$codon_time" ]; then
     codon_time="ERROR"
-fi
-
-# Clean up temporary files
-rm test_python.py test_codon.py
-
-# Restore python_imports.py if it was backed up
-if [ -f python_imports.py.bak ]; then
-    mv python_imports.py.bak python_imports.py
 fi
 
 # Display results in requested format
