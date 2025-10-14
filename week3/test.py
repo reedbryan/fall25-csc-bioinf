@@ -9,13 +9,10 @@ upgma = None
 neighbor_joining = None
 
 if __codon__:
-    from biotite_codon import upgma, neighbor_joining
+    from codon_imports import upgma, neighbor_joining
 else:
     try:
-        # Use __import__ to avoid Codon trying to compile this import
-        phylo_module = __import__('biotite.sequence.phylo', fromlist=['upgma', 'neighbor_joining'])
-        upgma = phylo_module.upgma
-        neighbor_joining = phylo_module.neighbor_joining
+        from python_imports import upgma, neighbor_joining
     except ImportError:
         print("Error: biotite package not available")
         exit(1)
