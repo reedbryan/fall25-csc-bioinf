@@ -10,13 +10,18 @@ cp test.py test_codon.py
 # Set Python version flag (leave as False)
 # No change needed for test_python.py
 
-# Set Codon version flag  
-sed -i 's/__codon__ = False/__codon__ = True/' test_codon.py
-
 # Remove python_imports.py to prevent Codon from trying to compile it
 if [ -f python_imports.py ]; then
     mv python_imports.py python_imports.py.bak
 fi
+
+# Remove old codon_imports.py if it exists (we use codon_imports.codon now)
+if [ -f codon_imports.py ]; then
+    rm codon_imports.py
+fi
+
+# Set Codon version flag  
+sed -i 's/__codon__ = False/__codon__ = True/' test_codon.py
 
 # Run Python tests and capture timing
 echo "Running Python tests..."
@@ -26,7 +31,12 @@ echo "Python output: $python_output"
 # Extract runtime - look for any line containing "runtime" and numbers
 python_time=$(echo "$python_output" | grep -i "Total.*runtime:" | sed 's/.*runtime: //' | sed 's/ms.*//')
 if [ -z "$python_time" ]; then
-    python_time="ERROR"
+    # Check if it's a biotite availability error
+    if echo "$python_output" | grep -q "biotite package not available"; then
+        python_time="BIOTITE_MISSING"
+    else
+        python_time="ERROR"
+    fi
 fi
 
 # Run Codon tests and capture timing  
@@ -54,6 +64,8 @@ echo "Language    Runtime"
 echo "-------------------"
 if [ "$python_time" = "ERROR" ]; then
     echo "python      FAILED"
+elif [ "$python_time" = "BIOTITE_MISSING" ]; then
+    echo "python      BIOTITE_NOT_INSTALLED"
 else
     echo "python      ${python_time}ms"
 fi
