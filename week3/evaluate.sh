@@ -16,12 +16,24 @@ sed -i 's/__codon__ = False/__codon__ = True/' test_codon.py
 # Run Python tests and capture timing
 echo "Running Python tests..."
 python_output=$(python test_python.py 2>&1)
-python_time=$(echo "$python_output" | grep "Total Python runtime:" | sed 's/.*: //' | sed 's/ms//')
+echo "Python output: $python_output"
 
-# Run Codon tests and capture timing
+# Extract runtime - look for any line containing "runtime" and numbers
+python_time=$(echo "$python_output" | grep -i "runtime" | grep -o '[0-9]\+ms' | tail -1 | sed 's/ms//')
+if [ -z "$python_time" ]; then
+    python_time="ERROR"
+fi
+
+# Run Codon tests and capture timing  
 echo "Running Codon tests..."
-codon_output=$(~/.codon/bin/codon run test_codon.py 2>&1)
-codon_time=$(echo "$codon_output" | grep "Total Codon runtime:" | sed 's/.*: //' | sed 's/ms//')
+codon_output=$(codon run test_codon.py 2>&1)
+echo "Codon output: $codon_output"
+
+# Extract runtime - look for any line containing "runtime" and numbers
+codon_time=$(echo "$codon_output" | grep -i "runtime" | grep -o '[0-9]\+ms' | tail -1 | sed 's/ms//')
+if [ -z "$codon_time" ]; then
+    codon_time="ERROR"
+fi
 
 # Clean up temporary files
 rm test_python.py test_codon.py
@@ -30,8 +42,17 @@ rm test_python.py test_codon.py
 echo ""
 echo "Language    Runtime"
 echo "-------------------"
-echo "python      ${python_time}ms"
-echo "codon       ${codon_time}ms"
+if [ "$python_time" = "ERROR" ]; then
+    echo "python      FAILED"
+else
+    echo "python      ${python_time}ms"
+fi
+
+if [ "$codon_time" = "ERROR" ]; then
+    echo "codon       FAILED"  
+else
+    echo "codon       ${codon_time}ms"
+fi
 
 echo ""
 echo "Evaluation complete!"
