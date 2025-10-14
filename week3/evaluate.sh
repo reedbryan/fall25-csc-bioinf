@@ -7,8 +7,8 @@ echo ""
 cp test.py test_python.py
 cp test.py test_codon.py
 
-# Set Python version flag
-sed -i 's/__codon__ = False/__codon__ = False/' test_python.py
+# Set Python version flag (leave as False)
+# No change needed for test_python.py
 
 # Set Codon version flag  
 sed -i 's/__codon__ = False/__codon__ = True/' test_codon.py
@@ -19,7 +19,7 @@ python_output=$(python test_python.py 2>&1)
 echo "Python output: $python_output"
 
 # Extract runtime - look for any line containing "runtime" and numbers
-python_time=$(echo "$python_output" | grep -i "runtime" | sed 's/.*runtime: //' | sed 's/ms.*//')
+python_time=$(echo "$python_output" | grep -i "Total.*runtime:" | sed 's/.*runtime: //' | sed 's/ms.*//')
 if [ -z "$python_time" ]; then
     python_time="ERROR"
 fi
@@ -30,7 +30,7 @@ codon_output=$(codon run test_codon.py 2>&1)
 echo "Codon output: $codon_output"
 
 # Extract runtime - look for any line containing "runtime" and numbers
-codon_time=$(echo "$codon_output" | grep -i "runtime" | grep -o '[0-9]\+ms' | tail -1 | sed 's/ms//')
+codon_time=$(echo "$codon_output" | grep -i "Total.*runtime:" | sed 's/.*runtime: //' | sed 's/ms.*//')
 if [ -z "$codon_time" ]; then
     codon_time="ERROR"
 fi

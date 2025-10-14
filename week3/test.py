@@ -7,9 +7,13 @@ __codon__ = False  # Toggle this for Codon testing
 if __codon__:
     from biotite_codon import upgma, neighbor_joining
 else:
-    import biotite.sequence.phylo as phylo
-    upgma = phylo.upgma
-    neighbor_joining = phylo.neighbor_joining
+    try:
+        import biotite.sequence.phylo as phylo
+        upgma = phylo.upgma
+        neighbor_joining = phylo.neighbor_joining
+    except ImportError:
+        print("Error: biotite package not available")
+        exit(1)
 
 # Define @test decorator for compatibility
 def test(func):
