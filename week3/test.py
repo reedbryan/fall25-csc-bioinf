@@ -13,8 +13,19 @@ if __codon__:
 else:
     try:
         from python_imports import upgma, neighbor_joining
-    except ImportError:
-        print("Error: biotite package not available")
+    except ImportError as e:
+        print(f"Error: biotite package not available - {e}")
+        print("Available packages:")
+        try:
+            import biotite
+            print("  - biotite: installed")
+        except ImportError:
+            print("  - biotite: not installed")
+        try:
+            import biotite.sequence.phylo
+            print("  - biotite.sequence.phylo: accessible")
+        except ImportError as e2:
+            print(f"  - biotite.sequence.phylo: not accessible - {e2}")
         exit(1)
 
 # Define @test decorator for compatibility
