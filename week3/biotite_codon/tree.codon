@@ -5,11 +5,9 @@ class TreeNode:
     A node in a tree.
     """
     
-    def __init__(self, children=None, parent=None):
-        if children is None:
-            children = []
-        self.children = children
-        self.parent = parent
+    def __init__(self):
+        self.children = []
+        self.parent = None
         self.distance = 0.0
         
     def add_child(self, child):
@@ -62,7 +60,7 @@ class Tree:
     A tree data structure for phylogenetic analysis.
     """
     
-    def __init__(self, root=None):
+    def __init__(self, root):
         self.root = root
         self._leaves = None
         
