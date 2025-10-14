@@ -38,8 +38,8 @@
   - UPGMA algorithm verification
   - Neighbor-joining algorithm testing
 - Implemented automated timing comparison showing runtime differences between implementations
-- Successfully achieved working versions in both Python and Codon
+- Had to split the test suite into a python test file and codon file to avoid codon compilation issues
 
-## Key Moments
+## Key Points
 - Performance comparisons can be automated effectively with shell scripts
 - Sometimes simplifying the project structure is necessary to achieve compatibility across different environments
