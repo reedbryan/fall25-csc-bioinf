@@ -20,12 +20,14 @@ cp test.py test_codon.py
 # Set Python version flag (leave as False)
 # No change needed for test_python.py
 
-# Set Codon version flag  
+# Set Codon version flag and remove python_imports references
 sed -i 's/__codon__ = False/__codon__ = True/' test_codon.py
+# Replace the problematic import line with a comment to prevent Codon from trying to resolve it
+sed -i 's/from python_imports import/#from python_imports import/' test_codon.py
 
 # Debug: Check what's in the test_codon.py file
 echo "=== DEBUG: Contents of test_codon.py after modification ==="
-head -n 20 test_codon.py
+cat test_codon.py
 echo "=== END DEBUG ==="
 
 # Debug: Check what files exist
