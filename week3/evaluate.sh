@@ -23,6 +23,16 @@ cp test.py test_codon.py
 # Set Codon version flag  
 sed -i 's/__codon__ = False/__codon__ = True/' test_codon.py
 
+# Debug: Check what's in the test_codon.py file
+echo "=== DEBUG: Contents of test_codon.py after modification ==="
+head -n 20 test_codon.py
+echo "=== END DEBUG ==="
+
+# Debug: Check what files exist
+echo "=== DEBUG: Files in directory ==="
+ls -la *.py *.codon 2>/dev/null || echo "No matching files"
+echo "=== END DEBUG ==="
+
 # Run Python tests and capture timing
 echo "Running Python tests..."
 python_output=$(python test_python.py 2>&1)
