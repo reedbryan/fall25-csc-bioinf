@@ -22,12 +22,12 @@ cp test.py test_codon.py
 
 # Set Codon version flag and remove python_imports references
 sed -i 's/__codon__ = False/__codon__ = True/' test_codon.py
-# Replace the problematic import line with a comment to prevent Codon from trying to resolve it
-sed -i 's/from python_imports import/#from python_imports import/' test_codon.py
+# Replace the problematic import line with a pass statement to maintain syntax
+sed -i 's/from python_imports import upgma, neighbor_joining/pass  # python_imports removed for codon/' test_codon.py
 
-# Debug: Check what's in the test_codon.py file
+# Debug: Check what's in the test_codon.py file (just the imports section)
 echo "=== DEBUG: Contents of test_codon.py after modification ==="
-cat test_codon.py
+head -n 25 test_codon.py
 echo "=== END DEBUG ==="
 
 # Debug: Check what files exist
