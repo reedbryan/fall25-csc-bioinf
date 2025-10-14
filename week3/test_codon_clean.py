@@ -115,4 +115,4 @@ if __name__ == "__main__":
     
     total_time = run_all_tests()
     
-    print(f"\nTotal Codon runtime: {total_time:.0f}ms")
+    print(f"\nTotal Codon runtime: {total_time:.2f}ms")
