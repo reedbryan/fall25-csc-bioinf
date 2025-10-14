@@ -4,8 +4,16 @@ import time
 # Conditional imports based on environment
 __codon__ = False  # Toggle this for Codon testing
 
+# Handle imports with proper error handling
+upgma = None
+neighbor_joining = None
+
 if __codon__:
-    from biotite_codon import upgma, neighbor_joining
+    try:
+        from biotite_codon import upgma, neighbor_joining
+    except ImportError as e:
+        print(f"Error importing biotite_codon: {e}")
+        exit(1)
 else:
     try:
         import biotite.sequence.phylo as phylo
