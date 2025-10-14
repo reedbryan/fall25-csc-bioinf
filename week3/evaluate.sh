@@ -3,13 +3,6 @@
 echo "=== Week 3 Phylogenetic Algorithm Evaluation ==="
 echo ""
 
-# Create temporary files for Python and Codon versions
-cp test.py test_python.py
-cp test.py test_codon.py
-
-# Set Python version flag (leave as False)
-# No change needed for test_python.py
-
 # Remove python_imports.py to prevent Codon from trying to compile it
 if [ -f python_imports.py ]; then
     mv python_imports.py python_imports.py.bak
@@ -19,6 +12,13 @@ fi
 if [ -f codon_imports.py ]; then
     rm codon_imports.py
 fi
+
+# Create temporary files for Python and Codon versions
+cp test.py test_python.py
+cp test.py test_codon.py
+
+# Set Python version flag (leave as False)
+# No change needed for test_python.py
 
 # Set Codon version flag  
 sed -i 's/__codon__ = False/__codon__ = True/' test_codon.py
