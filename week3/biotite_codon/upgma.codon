@@ -1,8 +1,7 @@
 import math
 from .tree import Tree, TreeNode
-from typing import List
 
-def upgma(distance_matrix) -> Tree:
+def upgma(distance_matrix):
     """
     Perform UPGMA clustering to build a phylogenetic tree.
     
@@ -19,21 +18,21 @@ def upgma(distance_matrix) -> Tree:
     n = len(distance_matrix)
     
     # Create initial nodes (leaves)
-    nodes: List[TreeNode] = []
+    nodes = []
     for i in range(n):
         node = TreeNode()
         nodes.append(node)
     
     # Create working distance matrix
-    distances: List[List[float]] = []
+    distances = []
     for i in range(n):
-        row: List[float] = []
+        row = []
         for j in range(n):
             row.append(float(distance_matrix[i][j]))
         distances.append(row)
     
     # Cluster sizes (initially 1 for each leaf)
-    cluster_sizes: List[int] = [1] * n
+    cluster_sizes = [1] * n
     
     # UPGMA algorithm
     while len(nodes) > 1:
@@ -61,8 +60,8 @@ def upgma(distance_matrix) -> Tree:
         nodes[min_j].distance = min_dist / 2.0
         
         # Create new nodes list and distance matrix
-        new_nodes: List[TreeNode] = []
-        new_cluster_sizes: List[int] = []
+        new_nodes = []
+        new_cluster_sizes = []
         
         # Add remaining nodes
         for i in range(len(nodes)):
@@ -75,10 +74,10 @@ def upgma(distance_matrix) -> Tree:
         new_cluster_sizes.append(cluster_sizes[min_i] + cluster_sizes[min_j])
         
         # Calculate new distance matrix
-        new_distances: List[List[float]] = []
+        new_distances = []
         
         for i in range(len(new_nodes)):
-            row: List[float] = []
+            row = []
             for j in range(len(new_nodes)):
                 if i == j:
                     row.append(0.0)

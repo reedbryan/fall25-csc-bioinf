@@ -19,7 +19,7 @@ python_output=$(python test_python.py 2>&1)
 echo "Python output: $python_output"
 
 # Extract runtime - look for any line containing "runtime" and numbers
-python_time=$(echo "$python_output" | grep -i "runtime" | grep -o '[0-9]\+ms' | tail -1 | sed 's/ms//')
+python_time=$(echo "$python_output" | grep -i "runtime" | sed 's/.*runtime: //' | sed 's/ms.*//')
 if [ -z "$python_time" ]; then
     python_time="ERROR"
 fi

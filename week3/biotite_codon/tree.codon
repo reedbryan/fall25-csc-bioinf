@@ -1,34 +1,33 @@
 import math
-from typing import List, Optional
 
 class TreeNode:
     """
     A node in a tree.
     """
     
-    def __init__(self, children: Optional[List['TreeNode']] = None, parent: Optional['TreeNode'] = None):
+    def __init__(self, children=None, parent=None):
         if children is None:
             children = []
-        self.children: List['TreeNode'] = children
-        self.parent: Optional['TreeNode'] = parent
-        self.distance: float = 0.0
+        self.children = children
+        self.parent = parent
+        self.distance = 0.0
         
-    def add_child(self, child: 'TreeNode'):
+    def add_child(self, child):
         """Add a child node."""
         self.children.append(child)
         child.parent = self
         
-    def distance_to(self, other: 'TreeNode') -> float:
+    def distance_to(self, other):
         """Calculate distance to another node."""
         # Find path to root from self
-        path_self: List['TreeNode'] = []
+        path_self = []
         current = self
         while current is not None:
             path_self.append(current)
             current = current.parent
             
         # Find path to root from other
-        path_other: List['TreeNode'] = []
+        path_other = []
         current = other
         while current is not None:
             path_other.append(current)
@@ -63,12 +62,12 @@ class Tree:
     A tree data structure for phylogenetic analysis.
     """
     
-    def __init__(self, root: Optional[TreeNode] = None):
-        self.root: Optional[TreeNode] = root
-        self._leaves: Optional[List[TreeNode]] = None
+    def __init__(self, root=None):
+        self.root = root
+        self._leaves = None
         
     @property
-    def leaves(self) -> List[TreeNode]:
+    def leaves(self):
         """Get all leaf nodes in the tree."""
         if self._leaves is None:
             self._leaves = []
@@ -76,7 +75,7 @@ class Tree:
                 self._collect_leaves(self.root, self._leaves)
         return self._leaves
         
-    def _collect_leaves(self, node: TreeNode, leaf_list: List[TreeNode]):
+    def _collect_leaves(self, node, leaf_list):
         """Recursively collect leaf nodes."""
         if len(node.children) == 0:
             leaf_list.append(node)

@@ -1,8 +1,7 @@
 import math
 from .tree import Tree, TreeNode
-from typing import List
 
-def neighbor_joining(distance_matrix) -> Tree:
+def neighbor_joining(distance_matrix):
     """
     Perform neighbor-joining to build a phylogenetic tree.
     
@@ -19,15 +18,15 @@ def neighbor_joining(distance_matrix) -> Tree:
     n = len(distance_matrix)
     
     # Create initial nodes
-    nodes: List[TreeNode] = []
+    nodes = []
     for i in range(n):
         node = TreeNode()
         nodes.append(node)
     
     # Create working distance matrix
-    distances: List[List[float]] = []
+    distances = []
     for i in range(n):
-        row: List[float] = []
+        row = []
         for j in range(n):
             row.append(float(distance_matrix[i][j]))
         distances.append(row)
@@ -37,9 +36,9 @@ def neighbor_joining(distance_matrix) -> Tree:
         num_nodes = len(nodes)
         
         # Calculate Q matrix
-        q_matrix: List[List[float]] = []
+        q_matrix = []
         for i in range(num_nodes):
-            row: List[float] = []
+            row = []
             for j in range(num_nodes):
                 if i == j:
                     row.append(0.0)
@@ -80,17 +79,17 @@ def neighbor_joining(distance_matrix) -> Tree:
         nodes[min_j].distance = dist_j
         
         # Create new nodes list
-        new_nodes: List[TreeNode] = []
+        new_nodes = []
         for k in range(num_nodes):
             if k != min_i and k != min_j:
                 new_nodes.append(nodes[k])
         new_nodes.append(new_node)
         
         # Calculate distances to new node
-        new_distances: List[List[float]] = []
+        new_distances = []
         
         for i in range(len(new_nodes)):
-            row: List[float] = []
+            row = []
             for j in range(len(new_nodes)):
                 if i == j:
                     row.append(0.0)
