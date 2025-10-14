@@ -13,7 +13,6 @@ class TreeNode:
     def add_child(self, child):
         """Add a child node."""
         self.children.append(child)
-        child.parent = self
         
     def distance_to(self, other):
         """Calculate distance to another node."""

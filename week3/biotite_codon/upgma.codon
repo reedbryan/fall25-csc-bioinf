@@ -55,6 +55,10 @@ def upgma(distance_matrix):
         new_node.add_child(nodes[min_i])
         new_node.add_child(nodes[min_j])
         
+        # Set parent relationships manually
+        nodes[min_i].parent = new_node
+        nodes[min_j].parent = new_node
+        
         # Set distances (half of the cluster distance)
         nodes[min_i].distance = min_dist / 2.0
         nodes[min_j].distance = min_dist / 2.0
