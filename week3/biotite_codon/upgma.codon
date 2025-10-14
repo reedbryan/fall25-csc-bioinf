@@ -51,9 +51,8 @@ def upgma(distance_matrix):
         # Create new internal node
         new_node = TreeNode()
         
-        # Add children manually
-        new_node.children.append(nodes[min_i])
-        new_node.children.append(nodes[min_j])
+        # Add children using helper method
+        new_node.add_children(nodes[min_i], nodes[min_j])
         
         # Set distances (half of the cluster distance)
         nodes[min_i].distance = min_dist / 2.0

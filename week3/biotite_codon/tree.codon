@@ -6,8 +6,12 @@ class TreeNode:
     """
     
     def __init__(self):
-        self.children = []
+        self.children = None
         self.distance = 0.0
+        
+    def add_children(self, child1, child2):
+        """Add two children to this node."""
+        self.children = [child1, child2]
         
     def distance_to(self, other):
         """Calculate distance to another node."""
@@ -35,7 +39,7 @@ class Tree:
         
     def _collect_leaves(self, node, leaf_list):
         """Recursively collect leaf nodes."""
-        if len(node.children) == 0:
+        if node.children is None or len(node.children) == 0:
             leaf_list.append(node)
         else:
             for child in node.children:
