@@ -10,9 +10,7 @@ class TreeNode:
         self.parent = None
         self.distance = 0.0
         
-    def add_child(self, child):
-        """Add a child node."""
-        self.children.append(child)
+    # Removed add_child method to avoid type inference issues
         
     def distance_to(self, other):
         """Calculate distance to another node."""

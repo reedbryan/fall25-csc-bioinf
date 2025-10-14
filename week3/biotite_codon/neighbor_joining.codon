@@ -72,11 +72,11 @@ def neighbor_joining(distance_matrix):
         dist_i = distances[min_i][min_j] / 2.0 + (sum_i - sum_j) / (2.0 * (num_nodes - 2))
         dist_j = distances[min_i][min_j] - dist_i
         
-        # Add children with distances
-        new_node.add_child(nodes[min_i])
-        new_node.add_child(nodes[min_j])
+        # Add children manually  
+        new_node.children.append(nodes[min_i])
+        new_node.children.append(nodes[min_j])
         
-        # Set parent relationships manually
+        # Set parent relationships
         nodes[min_i].parent = new_node
         nodes[min_j].parent = new_node
         
@@ -123,10 +123,12 @@ def neighbor_joining(distance_matrix):
     # Connect the last two nodes
     if len(nodes) == 2:
         root = TreeNode()
-        root.add_child(nodes[0])
-        root.add_child(nodes[1])
         
-        # Set parent relationships manually
+        # Add children manually
+        root.children.append(nodes[0])
+        root.children.append(nodes[1])
+        
+        # Set parent relationships
         nodes[0].parent = root
         nodes[1].parent = root
         

@@ -51,11 +51,11 @@ def upgma(distance_matrix):
         # Create new internal node
         new_node = TreeNode()
         
-        # Add children
-        new_node.add_child(nodes[min_i])
-        new_node.add_child(nodes[min_j])
+        # Add children manually
+        new_node.children.append(nodes[min_i])
+        new_node.children.append(nodes[min_j])
         
-        # Set parent relationships manually
+        # Set parent relationships
         nodes[min_i].parent = new_node
         nodes[min_j].parent = new_node
         
