@@ -1,6 +1,6 @@
 """
 Global Sequence Alignment using Needleman-Wunsch Algorithm
-Implementation in Codon for bioinformatics sequence analysis
+Python implementation for bioinformatics sequence analysis
 """
 import time
 
@@ -30,20 +30,10 @@ def needleman_wunsch(seq1: str, seq2: str, match_score: int = 2, mismatch_score:
     len2 = len(seq2)
     
     # Initialize scoring matrix
-    score_matrix = []
-    for i in range(len1 + 1):
-        row = []
-        for j in range(len2 + 1):
-            row.append(0)
-        score_matrix.append(row)
+    score_matrix = [[0 for _ in range(len2 + 1)] for _ in range(len1 + 1)]
     
     # Initialize traceback matrix
-    traceback = []
-    for i in range(len1 + 1):
-        row = []
-        for j in range(len2 + 1):
-            row.append("")
-        traceback.append(row)
+    traceback = [["" for _ in range(len2 + 1)] for _ in range(len1 + 1)]
     
     # Initialize first row and column
     for i in range(len1 + 1):
@@ -109,77 +99,6 @@ def needleman_wunsch(seq1: str, seq2: str, match_score: int = 2, mismatch_score:
     final_score = score_matrix[len1][len2]
     return (aligned_seq1, aligned_seq2, final_score)
 
-def print_alignment(seq1: str, seq2: str, alignment_score: int):
-    """
-    Print a formatted alignment with match indicators.
-    
-    Parameters
-    ----------
-    seq1 : str
-        First aligned sequence
-    seq2 : str
-        Second aligned sequence
-    alignment_score : int
-        Alignment score
-    """
-    print("Global Alignment Result:")
-    print("=" * 50)
-    print(f"Sequence 1: {seq1}")
-    
-    # Create match line
-    match_line = ""
-    for i in range(len(seq1)):
-        if seq1[i] == seq2[i]:
-            match_line += "|"
-        elif seq1[i] == "-" or seq2[i] == "-":
-            match_line += " "
-        else:
-            match_line += "."
-    
-    print(f"            {match_line}")
-    print(f"Sequence 2: {seq2}")
-    print(f"Score: {alignment_score}")
-    print("=" * 50)
-
-def calculate_alignment_stats(seq1: str, seq2: str):
-    """
-    Calculate alignment statistics.
-    
-    Parameters
-    ----------
-    seq1 : str
-        First aligned sequence
-    seq2 : str
-        Second aligned sequence
-        
-    Returns
-    -------
-    dict
-        Dictionary containing alignment statistics
-    """
-    matches = 0
-    mismatches = 0
-    gaps = 0
-    total_length = len(seq1)
-    
-    for i in range(total_length):
-        if seq1[i] == "-" or seq2[i] == "-":
-            gaps += 1
-        elif seq1[i] == seq2[i]:
-            matches += 1
-        else:
-            mismatches += 1
-    
-    identity = (matches * 100) // total_length if total_length > 0 else 0
-    
-    return {
-        "matches": matches,
-        "mismatches": mismatches,
-        "gaps": gaps,
-        "length": total_length,
-        "identity": identity
-    }
-
 def read_fasta(filename: str) -> str:
     """
     Read a FASTA file and return the sequence.
@@ -232,20 +151,19 @@ def run_alignment_test(file1: str, file2: str) -> float:
     aligned1, aligned2, score = needleman_wunsch(seq1, seq2)
     
     end_time = time.time()
-    runtime_ms = (end_time - start_time) * 1000.0
+    runtime_ms = (end_time - start_time) * 1000
     
     return runtime_ms
 
-# Example usage and testing
 if __name__ == "__main__":
     import sys
     
     if len(sys.argv) != 3:
-        print("Usage: codon run global_alignment.codon <file1.fa> <file2.fa>")
+        print("Usage: python global_alignment.py <file1.fa> <file2.fa>")
         sys.exit(1)
     
     file1 = sys.argv[1]
     file2 = sys.argv[2]
     
     runtime = run_alignment_test(file1, file2)
-    print(f"Codon runtime: {runtime:.2f}ms")
+    print(f"Python runtime: {runtime:.2f}ms")
