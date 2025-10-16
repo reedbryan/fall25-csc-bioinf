@@ -141,45 +141,6 @@ def print_alignment(seq1: str, seq2: str, alignment_score: int):
     print(f"Score: {alignment_score}")
     print("=" * 50)
 
-def calculate_alignment_stats(seq1: str, seq2: str):
-    """
-    Calculate alignment statistics.
-    
-    Parameters
-    ----------
-    seq1 : str
-        First aligned sequence
-    seq2 : str
-        Second aligned sequence
-        
-    Returns
-    -------
-    dict
-        Dictionary containing alignment statistics
-    """
-    matches = 0
-    mismatches = 0
-    gaps = 0
-    total_length = len(seq1)
-    
-    for i in range(total_length):
-        if seq1[i] == "-" or seq2[i] == "-":
-            gaps += 1
-        elif seq1[i] == seq2[i]:
-            matches += 1
-        else:
-            mismatches += 1
-    
-    identity = (matches * 100) // total_length if total_length > 0 else 0
-    
-    return {
-        "matches": matches,
-        "mismatches": mismatches,
-        "gaps": gaps,
-        "length": total_length,
-        "identity": identity
-    }
-
 def read_fasta(filename: str) -> str:
     """
     Read a FASTA file and return the sequence.
@@ -236,7 +197,6 @@ def run_alignment_test(file1: str, file2: str) -> float:
     
     return runtime_ms
 
-# Example usage and testing
 if __name__ == "__main__":
     import sys
     
