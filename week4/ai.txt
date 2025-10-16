@@ -149,12 +149,14 @@ RESPONSE:
 
 
 
-4. "ok now create a python verrsion of this script and place that in the python folder. then use week4/evaluate.sh to run both and measure the runtime use python's time lib. The output of week4/evaulate.sh should look something like this:
+5. "ok now create a python verrsion of this script and place that in the python folder. then use week4/evaluate.sh to run both and measure the runtime use python's time lib. The scripts should be tested using the data from the data folder and the output of week4/evaulate.sh should look something like this:
 
-Language    Runtime
-----------------------
-python      2000ms
-codon       1000ms"
+Data         Language    Runtime
+-----------------------------------
+q1_vs_t1     python      200ms
+q1_vs_t1     codon       100ms
+human_vs_orang python    2000ms
+human_vs_orang codon     1000ms"
 
 RESPONSE:
     "I'll create the Python version of the global alignment algorithm and then update the evaluate.sh script to compare performance between Python and Codon.
@@ -200,14 +202,60 @@ RESPONSE:
 
 
 
-5. "ok now create a python verrsion of this script and place that in the python folder. then use week4/evaluate.sh to run both and measure the runtime use python's time lib. The scripts should be tested using the data from the data folder and the output of week4/evaulate.sh should look something like this:
+5. "ok the next step is to implement a local alignment algorithum. I need all the same steps as global alignment to be taken:
+- create local_alignment.codon
+- create local_alignment.python
+- run them in evalutate.sh using the same data as global alignment, with an output that looks something like this:
 
-Data         Language    Runtime
------------------------------------
-q1_vs_t1     python      200ms
-q1_vs_t1     codon       100ms
-human_vs_orang python    2000ms
-human_vs_orang codon     1000ms"
+Method            Language    Runtime
+--------------------------------------
+global-mt_human   python      2000ms
+global-mt_human   codon      1000ms
+global-q1         python      2000ms
+global-q1         codon      1000ms
+local-mt_human      python       2000ms
+local-mt_human      codon       1000ms
+..."
 
 RESPONSE:
-    "
+    "I'll implement the local alignment algorithm (Smith-Waterman) and update the evaluation framework to test both global and local alignments. Let me start with the Codon implementation:
+
+    local_alignment.codon
+    Now let me create the Python version:
+
+    local_alignment.py
+    Now let me update the evaluation script to test both global and local alignments with the new format:
+
+    evaluate.sh+20-14
+    Perfect! I've implemented the complete local alignment framework. Here's what I've created:
+
+    ✅ Local Alignment Implementation:
+    1. Smith-Waterman Algorithm Features:
+    Key Difference from Global: Negative scores are set to 0 (prevents extension of poor alignments)
+    Local Optimization: Finds the best local match within sequences
+    Traceback: Starts from the highest scoring cell, stops at score 0
+    Best for: Finding conserved domains, motifs, or similar regions
+    2. Algorithm Differences:
+    Feature	Global (Needleman-Wunsch)	Local (Smith-Waterman)
+    Negative Scores	Allowed	Set to 0
+    Traceback Start	Bottom-right corner	Highest score position
+    Traceback Stop	Top-left corner	Score reaches 0
+    Alignment Type	End-to-end	Best local region
+    3. Files Created:
+    codon/local_alignment.codon - Codon implementation
+    python/local_alignment.py - Python implementation
+    Updated evaluate.sh - Tests both global and local methods
+    4. Updated Evaluation Framework:
+    Tests both methods: global and local alignment
+    Same data files: q1 vs t1, MT-human vs MT-orang
+    Comprehensive comparison: 4 total test combinations per language
+    Formatted output: Shows method-data pairs clearly
+    📊 Expected Output Format:
+    🚀 To Run:
+    This will now test both global and local alignment algorithms on the same datasets, giving you a comprehensive performance comparison between Python and Codon for both alignment methods!"
+
+
+
+
+
+6. 
