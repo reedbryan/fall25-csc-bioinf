@@ -1,0 +1,181 @@
+"""
+Semi-Global (Fitting) Sequence Alignment Algorithm
+Python implementation for bioinformatics sequence analysis
+"""
+import time
+
+def semi_global_alignment(seq1: str, seq2: str, match_score: int = 2, mismatch_score: int = -1, gap_penalty: int = -2):
+    """
+    Perform semi-global sequence alignment (fitting alignment).
+    
+    This algorithm finds the best alignment of seq2 within seq1, allowing
+    free gaps at the beginning and end of seq1 (no penalty for leading/trailing gaps in seq1).
+    
+    Parameters
+    ----------
+    seq1 : str
+        Target sequence (longer sequence to fit seq2 into)
+    seq2 : str
+        Query sequence (shorter sequence to fit into seq1)
+    match_score : int
+        Score for matching characters (default: 2)
+    mismatch_score : int
+        Score for mismatching characters (default: -1)
+    gap_penalty : int
+        Penalty for gaps/indels (default: -2)
+        
+    Returns
+    -------
+    tuple
+        (aligned_seq1, aligned_seq2, alignment_score)
+    """
+    len1 = len(seq1)
+    len2 = len(seq2)
+    
+    # Initialize scoring matrix
+    score_matrix = [[0 for _ in range(len2 + 1)] for _ in range(len1 + 1)]
+    
+    # Initialize traceback matrix
+    traceback = [["" for _ in range(len2 + 1)] for _ in range(len1 + 1)]
+    
+    # Initialize first column (free gaps at beginning of seq1)
+    for i in range(len1 + 1):
+        score_matrix[i][0] = 0  # No penalty for gaps in seq1
+        if i > 0:
+            traceback[i][0] = "up"
+    
+    # Initialize first row (gaps in seq2 are penalized)
+    for j in range(len2 + 1):
+        score_matrix[0][j] = j * gap_penalty
+        if j > 0:
+            traceback[0][j] = "left"
+    
+    traceback[0][0] = "done"
+    
+    # Fill the scoring matrix
+    for i in range(1, len1 + 1):
+        for j in range(1, len2 + 1):
+            # Calculate scores for three possible moves
+            if seq1[i-1] == seq2[j-1]:
+                diagonal_score = score_matrix[i-1][j-1] + match_score
+            else:
+                diagonal_score = score_matrix[i-1][j-1] + mismatch_score
+            
+            up_score = score_matrix[i-1][j] + gap_penalty
+            left_score = score_matrix[i][j-1] + gap_penalty
+            
+            # Choose the maximum score
+            max_score = diagonal_score
+            direction = "diagonal"
+            
+            if up_score > max_score:
+                max_score = up_score
+                direction = "up"
+            
+            if left_score > max_score:
+                max_score = left_score
+                direction = "left"
+            
+            score_matrix[i][j] = max_score
+            traceback[i][j] = direction
+    
+    # Find the best score in the last column (free gaps at end of seq1)
+    max_score = score_matrix[0][len2]
+    max_i = 0
+    
+    for i in range(1, len1 + 1):
+        if score_matrix[i][len2] > max_score:
+            max_score = score_matrix[i][len2]
+            max_i = i
+    
+    # Traceback from the best ending position
+    aligned_seq1 = ""
+    aligned_seq2 = ""
+    i = max_i
+    j = len2
+    
+    while traceback[i][j] != "done":
+        if traceback[i][j] == "diagonal":
+            aligned_seq1 = seq1[i-1] + aligned_seq1
+            aligned_seq2 = seq2[j-1] + aligned_seq2
+            i -= 1
+            j -= 1
+        elif traceback[i][j] == "up":
+            aligned_seq1 = seq1[i-1] + aligned_seq1
+            aligned_seq2 = "-" + aligned_seq2
+            i -= 1
+        elif traceback[i][j] == "left":
+            aligned_seq1 = "-" + aligned_seq1
+            aligned_seq2 = seq2[j-1] + aligned_seq2
+            j -= 1
+    
+    return (aligned_seq1, aligned_seq2, max_score)
+
+def read_fasta(filename: str) -> str:
+    """
+    Read a FASTA file and return the sequence.
+    
+    Parameters
+    ----------
+    filename : str
+        Path to FASTA file
+        
+    Returns
+    -------
+    str
+        DNA/RNA/protein sequence
+    """
+    sequence = ""
+    with open(filename, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if not line.startswith('>'):
+                sequence += line.upper()
+    return sequence
+
+def run_alignment_test(file1: str, file2: str) -> float:
+    """
+    Run alignment test on two FASTA files and return runtime.
+    
+    Parameters
+    ----------
+    file1 : str
+        Path to first FASTA file (target sequence)
+    file2 : str  
+        Path to second FASTA file (query sequence)
+        
+    Returns
+    -------
+    float
+        Runtime in milliseconds
+    """
+    start_time = time.time()
+    
+    # Read sequences
+    seq1 = read_fasta(file1)
+    seq2 = read_fasta(file2)
+    
+    # Truncate sequences for reasonable runtime (first 1000 chars)
+    seq1 = seq1[:1000]
+    seq2 = seq2[:1000]
+    
+    # Perform semi-global alignment
+    aligned1, aligned2, score = semi_global_alignment(seq1, seq2)
+    
+    end_time = time.time()
+    runtime_ms = (end_time - start_time) * 1000
+    
+    return runtime_ms
+
+if __name__ == "__main__":
+    import sys
+    
+    if len(sys.argv) != 3:
+        print("Usage: python semi_global_alignment.py <file1.fa> <file2.fa>")
+        sys.exit(1)
+    
+    file1 = sys.argv[1]
+    file2 = sys.argv[2]
+    
+    runtime = run_alignment_test(file1, file2)
+    print(f"Python runtime: {runtime:.2f}ms")

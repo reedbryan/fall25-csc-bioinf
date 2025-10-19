@@ -15,10 +15,10 @@ TEST_NAMES=(
 )
 
 # Alignment methods
-METHODS=("global" "local")
+METHODS=("global" "local" "semi_global")
 
-echo "Method            Language    Runtime"
-echo "--------------------------------------"
+echo "Method                    Language    Runtime"
+echo "----------------------------------------------"
 
 # Run tests for each method and data pair
 for method in "${METHODS[@]}"; do
@@ -30,8 +30,8 @@ for method in "${METHODS[@]}"; do
         
         # Check if files exist
         if [ ! -f "$file1" ] || [ ! -f "$file2" ]; then
-            printf "%-17s python      FILE_NOT_FOUND\n" "${method}-${test_name}"
-            printf "%-17s codon       FILE_NOT_FOUND\n" "${method}-${test_name}"
+            printf "%-25s python      FILE_NOT_FOUND\n" "${method}-${test_name}"
+            printf "%-25s codon       FILE_NOT_FOUND\n" "${method}-${test_name}"
             continue
         fi
         
@@ -54,8 +54,8 @@ for method in "${METHODS[@]}"; do
         fi
         
         # Display results
-        printf "%-17s python      %sms\n" "${method}-${test_name}" "${python_time}"
-        printf "%-17s codon       %sms\n" "${method}-${test_name}" "${codon_time}"
+        printf "%-25s python      %sms\n" "${method}-${test_name}" "${python_time}"
+        printf "%-25s codon       %sms\n" "${method}-${test_name}" "${codon_time}"
     done
 done
 
