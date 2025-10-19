@@ -36,7 +36,6 @@ for method in "${METHODS[@]}"; do
         fi
         
         # Run Python version
-        echo "Running Python ${method} test for ${test_name}..."
         python_output=$(cd python && python ${method}_alignment.py "../${file1}" "../${file2}" 2>&1)
         python_time=$(echo "$python_output" | grep "Python runtime:" | sed 's/.*: //' | sed 's/ms.*//')
         
@@ -46,7 +45,6 @@ for method in "${METHODS[@]}"; do
         fi
         
         # Run Codon version  
-        echo "Running Codon ${method} test for ${test_name}..."
         codon_output=$(cd codon && codon run ${method}_alignment.codon "../${file1}" "../${file2}" 2>&1)
         codon_time=$(echo "$codon_output" | grep "Codon runtime:" | sed 's/.*: //' | sed 's/ms.*//')
         
