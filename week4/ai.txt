@@ -258,4 +258,142 @@ RESPONSE:
 
 
 
-6. 
+6. "I dont need the text saying which alg is running, only the results:
+
+remove all:
+"Running Python local test for q1...
+Running Codon local test for q1...""
+
+RESPONSE:
+    "Perfect! I've removed the progress messages. Now the evaluation script will run silently and only show the clean results table:
+
+    ✅ What Changed:
+    Removed: echo "Running Python ${method} test for ${test_name}..."
+    Removed: echo "Running Codon ${method} test for ${test_name}..."
+    Kept: Error output messages (in case something goes wrong)
+    📊 Expected Clean Output:
+    Now when you run bash evaluate.sh, it will execute quietly and just display the results table without the verbose progress messages!"
+
+
+
+
+
+
+7. "ok the next step is to implement a semi-global (fitting) alignment algorithum. I need all the same steps as global & local alignment to be taken:
+- create semi_global_alignment.codon
+- create semi_global_alignment.python
+- run them in evalutate.sh using the same data as global alignment, with an output that looks something like this:
+
+Method            Language    Runtime
+--------------------------------------
+global-mt_human   python      2000ms
+global-mt_human   codon      1000ms
+global-q1         python      2000ms
+global-q1         codon      1000ms
+local-mt_human      python       2000ms
+local-mt_human      codon       1000ms
+semi_global-mthuman python 2000ms
+..."
+
+RESPONSE:
+    "I'll implement the semi-global (fitting) alignment algorithm and add it to the evaluation framework. Semi-global alignment is useful when you want to align one sequence within another without penalizing gaps at the ends.
+
+    semi_global_alignment.codon+191-1
+    Now let me create the Python version:
+
+    semi_global_alignment.py
+    Now let me update the evaluation script to include semi-global alignment:
+
+    evaluate.sh+1-1
+    Perfect! I've implemented the complete semi-global (fitting) alignment framework. Here's what I've created:
+
+    ✅ Semi-Global Alignment Implementation:
+    1. Algorithm Features:
+    Fitting Alignment: Finds the best fit of seq2 within seq1
+    Free End Gaps: No penalty for gaps at the beginning/end of seq1
+    Penalized Internal Gaps: Gaps within the alignment are still penalized
+    Best for: Finding shorter sequences within longer ones (e.g., genes within chromosomes)
+    2. Key Differences from Other Methods:
+    Feature	Global	Local	Semi-Global
+    End Gaps in seq1	Penalized	Ignored	Free (no penalty)
+    End Gaps in seq2	Penalized	Ignored	Penalized
+    Traceback Start	Bottom-right	Max score	Best in last column
+    Use Case	Full alignment	Conserved regions	Fitting shorter into longer
+    3. Algorithm Details:
+    Initialization: First column set to 0 (free gaps in seq1), first row penalized (gaps in seq2)
+    Matrix Filling: Standard dynamic programming
+    Traceback: Starts from the highest scoring position in the last column
+    Output: Aligned sequences with the best fit of seq2 in seq1
+    4. Files Created:
+    codon/semi_global_alignment.codon - Codon implementation
+    python/semi_global_alignment.py - Python implementation
+    Updated evaluate.sh - Now tests all three alignment methods
+    5. Updated Evaluation Framework:
+    Tests three methods: global, local, and semi_global alignment
+    Same data files: q1 vs t1, MT-human vs MT-orang
+    Comprehensive comparison: 6 total test combinations per language
+    📊 Expected Output Format:
+    🚀 To Run:
+    Now you have a complete comparison of all three major alignment algorithms (global, local, and semi-global) with performance benchmarks between Python and Codon implementations!"
+
+
+
+
+
+
+8. "explain the different in global and semi global alignment"
+
+RESPONSE:
+    "Global vs Semi-Global Alignment: Key Differences
+    Global Alignment (Needleman-Wunsch)
+    Definition: Aligns two sequences from end-to-end over their entire length.
+
+    Key Characteristics:
+
+    End-to-end alignment: Forces alignment of complete sequences
+    Gap penalties everywhere: Gaps at sequence ends are penalized
+    Equal treatment: Both sequences treated equally
+    Use case: When sequences are expected to be similar in length and homologous throughout
+    Matrix Initialization:
+
+    Traceback: Always starts from bottom-right corner, goes to top-left
+
+    Semi-Global Alignment (Fitting/Overlap)
+    Definition: Finds the best alignment where one sequence (usually shorter) fits within another, without penalizing end gaps.
+
+    Key Characteristics:
+
+    Asymmetric treatment: One sequence (target) allows free end gaps
+    Free end gaps: No penalty for gaps at beginning/end of target sequence
+    Internal gaps penalized: Gaps within the alignment still cost points
+    Use case: Finding shorter sequences within longer ones (genes in genomes, domains in proteins)
+    Matrix Initialization:
+
+    Traceback: Starts from the highest score in the last column (not necessarily bottom-right)
+
+    Practical Example
+    Sequences:
+
+    Target (seq1): ACGTACGTACGT (longer)
+    Query (seq2): CGTACG (shorter)
+    Global Alignment Result:
+
+    Penalties for gaps at both ends
+
+    Semi-Global Alignment Result:
+
+    No penalty for gaps at ends of target sequence
+
+    When to Use Each
+    Scenario	Algorithm	Reason
+    Comparing full genes	Global	Both sequences should align completely
+    Finding exons in genes	Semi-Global	Exon should fit within gene without end penalties
+    Protein domain search	Semi-Global	Domain should fit within protein
+    Phylogenetic analysis	Global	Need complete sequence comparison
+    ORF finding	Semi-Global	ORF should fit within DNA sequence
+    Performance Characteristics
+    Time Complexity: Both are O(m×n)
+    Space Complexity: Both are O(m×n)
+    Sensitivity: Semi-global is more sensitive for finding shorter sequences within longer ones
+    Specificity: Global is better for sequences of similar length
+    The choice between global and semi-global depends on your biological question: Do you need complete sequence alignment, or are you looking for the best fit of one sequence within another?"
