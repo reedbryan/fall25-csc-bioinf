@@ -15,7 +15,7 @@ TEST_NAMES=(
 )
 
 # Alignment methods
-METHODS=("global" "local" "semi_global")
+METHODS=("global" "local" "semi_global" "affine_global")
 
 echo "Method                    Language    Runtime"
 echo "----------------------------------------------"

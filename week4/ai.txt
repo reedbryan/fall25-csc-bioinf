@@ -397,3 +397,80 @@ RESPONSE:
     Sensitivity: Semi-global is more sensitive for finding shorter sequences within longer ones
     Specificity: Global is better for sequences of similar length
     The choice between global and semi-global depends on your biological question: Do you need complete sequence alignment, or are you looking for the best fit of one sequence within another?"
+
+
+
+
+
+
+
+9. "ok the next step is to implement affine gap penalty global alignment algorithum. I need all the same steps as global & local alignment to be taken:
+- create affine_global_alignment.codon
+- create affine_global_alignment.python
+- run them in evalutate.sh using the same data as global alignment, with an output that looks something like this:
+
+Method            Language    Runtime
+--------------------------------------
+global-mt_human   python      2000ms
+global-mt_human   codon      1000ms
+global-q1         python      2000ms
+global-q1         codon      1000ms
+local-mt_human      python       2000ms
+local-mt_human      codon       1000ms
+semi_global-mthuman python 2000ms
+affine_global_alignment python 2000ms
+..."
+
+RESPONSE:
+    "I'll implement the affine gap penalty global alignment algorithm. Affine gap penalties use different costs for opening a gap versus extending it, which is more biologically realistic.
+
+    affine_global_alignment.codon
+    Now let me create the Python version:
+
+    affine_global_alignment.py
+    Now let me update the evaluation script to include affine global alignment:
+
+    evaluate.sh+1-1
+    Perfect! I've implemented the complete affine gap penalty global alignment framework. Here's what I've created:
+
+    ✅ Affine Gap Penalty Global Alignment Implementation:
+    1. Algorithm Features:
+    Realistic Gap Modeling: Different penalties for opening vs extending gaps
+    Three-State Model: Uses separate matrices for Match (M), Insertion (I), and Deletion (D) states
+    More Biologically Accurate: Models the fact that extending existing gaps is usually less costly than creating new ones
+    Global Alignment: Still aligns sequences end-to-end like Needleman-Wunsch
+    2. Key Differences from Linear Gap Penalty:
+    Feature	Linear Gap	Affine Gap
+    Gap Model	Same penalty for all gaps	Different open vs extend penalties
+    Matrices	One scoring matrix	Three matrices (M, I, D)
+    Gap Cost	n × gap_penalty	gap_open + (n-1) × gap_extend
+    Biological Reality	Less realistic	More realistic
+    3. Algorithm Details:
+    Gap Open Penalty: -3 (cost to start a new gap)
+    Gap Extend Penalty: -1 (cost to extend an existing gap)
+    Match Score: +2
+    Mismatch Score: -1
+    Time Complexity: O(m×n) (same as linear, but with 3× constant factor)
+    Space Complexity: O(m×n) (requires 3 matrices instead of 1)
+    4. Three-Matrix System:
+    M Matrix: Tracks alignments ending in match/mismatch
+    I Matrix: Tracks alignments ending in insertion (gap in seq1)
+    D Matrix: Tracks alignments ending in deletion (gap in seq2)
+    5. Files Created:
+    codon/affine_global_alignment.codon - Codon implementation
+    python/affine_global_alignment.py - Python implementation
+    Updated evaluate.sh - Now tests all four alignment methods
+    6. Updated Evaluation Framework:
+    Tests four methods: global, local, semi_global, and affine_global alignment
+    Same data files: q1 vs t1, MT-human vs MT-orang
+    Comprehensive comparison: 8 total test combinations per language
+    📊 Expected Output Format:
+    🎯 Biological Significance:
+    Affine gap penalties are more realistic because:
+
+    Multiple consecutive mutations are less likely than single mutations
+    Insertions/deletions often occur in blocks rather than single bases
+    Structural constraints make gap extension more favorable than gap opening
+
+    🚀 To Run:
+    Now you have a complete comparison of all four major alignment algorithms with performance benchmarks between Python and Codon implementations! The affine gap penalty version should be slightly slower due to the three-matrix computation but will produce more biologically meaningful alignments."
