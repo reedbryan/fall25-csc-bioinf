@@ -47,6 +47,27 @@ jobs:
           jupyter execute week5.ipynb --inplace
           jupyter nbconvert week5.ipynb --to html --output week5_executed.html
           jupyter nbconvert week5.ipynb --to markdown --output week5_output.md
+      - name: Display key results in logs
+        if: always()
+        run: |
+          cd week5
+          echo "=== Pipeline Summary ==="
+          if [ -f results/summary.txt ]; then
+            cat results/summary.txt
+          else
+            echo "⚠ Summary file not found"
+          fi
+          echo ""
+          echo "=== Variant Counts ==="
+          if [ -f variants/illumina.vcf ]; then
+            echo "Illumina variants: $(grep -v '^#' variants/illumina.vcf | wc -l)"
+          fi
+          if [ -f variants/pacbio.vcf ]; then
+            echo "PacBio variants: $(grep -v '^#' variants/pacbio.vcf | wc -l)"
+          fi
+          echo ""
+          echo "=== Files Generated ==="
+          ls -lh data/ alignments/ variants/ results/ 2>/dev/null || echo "Some directories not found"
       - name: Upload executed notebook
         uses: actions/upload-artifact@v4
         if: always()
