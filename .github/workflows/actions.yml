@@ -44,4 +44,31 @@ jobs:
           source $HOME/miniforge3/etc/profile.d/conda.sh
           conda activate base
           cd "week5"
-          jupyter execute week5.ipynb
+          jupyter execute week5.ipynb --inplace
+          jupyter nbconvert week5.ipynb --to html --output week5_executed.html
+          jupyter nbconvert week5.ipynb --to markdown --output week5_output.md
+      - name: Upload executed notebook
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: week5-results
+          path: |
+            week5/week5.ipynb
+            week5/week5_executed.html
+            week5/week5_output.md
+            week5/results/
+            week5/variants/*.vcf
+          retention-days: 30
+      - name: Comment on PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('week5/results/summary.txt', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## Week 5 Pipeline Results\n```\n' + summary + '\n```'
+            });
