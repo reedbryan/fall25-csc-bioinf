@@ -33,6 +33,13 @@ jobs:
           # Install bioinformatics tools via conda
           # Note: bgzip and tabix are included in htslib package
           conda install -c bioconda -y samtools bcftools minimap2 hapcut2 htslib wget
+
+          # Verify HapCUT2 installation
+          echo "=== Verifying HapCUT2 installation ==="
+          which extractHAIRS || echo "⚠ extractHAIRS not found in PATH"
+          which HAPCUT2 || echo "⚠ HAPCUT2 not found in PATH"
+          ls -la $HOME/miniforge3/bin/ | grep -i hapcut || echo "⚠ No hapcut binaries found"
+          ls -la $HOME/miniforge3/bin/ | grep -i HAIRS || echo "⚠ No HAIRS binaries found"
           
           # Add conda bin to PATH
           echo "$HOME/miniforge3/bin" >> $GITHUB_PATH
