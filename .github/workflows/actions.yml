@@ -56,18 +56,6 @@ jobs:
             cat results/summary.txt
           else
             echo "⚠ Summary file not found"
-          fi
-          echo ""
-          echo "=== Variant Counts ==="
-          if [ -f variants/illumina.vcf ]; then
-            echo "Illumina variants: $(grep -v '^#' variants/illumina.vcf | wc -l)"
-          fi
-          if [ -f variants/pacbio.vcf ]; then
-            echo "PacBio variants: $(grep -v '^#' variants/pacbio.vcf | wc -l)"
-          fi
-          echo ""
-          echo "=== Files Generated ==="
-          ls -lh data/ alignments/ variants/ results/ 2>/dev/null || echo "Some directories not found"
       - name: Upload executed notebook
         uses: actions/upload-artifact@v4
         if: always()
