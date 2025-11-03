@@ -1,0 +1,26 @@
+This assignment took a lot of AI to get working. In previous assignments I have documented
+all prompts used throughout and their respective results. I have completely lost track of 
+the prompts and trying to tack down and display all of them would take much more time than
+I have on hand. Instead I will show a couple of example prompts/responses from the tail end
+of the assignment, I understand if this costs me some marks and I apologize for not documenting
+more.
+
+
+Prompt1: "Now that we have the two phased vcf files, how can I do the following, as outlined in my assignment: "Now you should have two phased VCF files (one for each sequencing technology). Compare these VCFs. How many variants are shared between the VCFs? How many are not?""
+
+RESONSE:
+
+    "Add a new cell after the phasing step to compare the VCF files.
+
+    week5.ipynb+2-0
+    This new cell:
+
+    Parses both phased VCF files to extract variant information
+    Identifies shared and unique variants between the two technologies
+    Calculates concordance rate (percentage of variants found by both)
+    Displays detailed tables showing:
+    Shared variants with their phased genotypes
+    Technology-specific variants
+    Analyzes phasing concordance to see if the two methods agree on which alleles are on the same chromosome
+    Saves a comparison report to results/vcf_comparison.txt
+    The output will clearly show how many variants are shared vs. unique to each technology, which directly answers your assignment question."
