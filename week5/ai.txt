@@ -6,10 +6,33 @@ of the assignment, I understand if this costs me some marks and I apologize for 
 more.
 
 
-Prompt1: "Now that we have the two phased vcf files, how can I do the following, as outlined in my assignment: "Now you should have two phased VCF files (one for each sequencing technology). Compare these VCFs. How many variants are shared between the VCFs? How many are not?""
+Prompt1: "I need the varriant phasing with hapcut2 to output two vcf fiiles (one forr iillumina, 1 for pacbio) update my code to do that"
+
+RESPONSE:
+    "I need the varriant phasing with hapcut2 to output two vcf fiiles (one forr iillumina, 1 for pacbio) update my code to do that
+
+    I'll help you modify the code to generate VCF files from the HapCUT2 phasing output. HapCUT2 produces a custom format, so we need to convert it back to VCF format with phased genotypes.
+
+    Solution Steps:
+    Keep the HapCUT2 output as-is (it's already outputting to regular files)
+    Add a function to convert HapCUT2 output back to VCF format with phased genotypes
+    Generate the phased VCF files for both Illumina and PacBio
+    week5.ipynb
+    Add a conversion function to transform HapCUT2 output into phased VCF files.
+
+    week5.ipynb+1-0
+    The code now:
+
+    Keeps the original HapCUT2 output files (.phased)
+    Converts them to proper VCF format with phased genotypes (.phased.vcf)
+    Creates two phased VCF files: variants/illumina.phased.vcf and variants/pacbio.phased.vcf
+    Updates genotypes from 0/1 (unphased) to 0|1 or 1|0 (phased)"
+
+
+
+Prompt2: "Now that we have the two phased vcf files, how can I do the following, as outlined in my assignment: "Now you should have two phased VCF files (one for each sequencing technology). Compare these VCFs. How many variants are shared between the VCFs? How many are not?""
 
 RESONSE:
-
     "Add a new cell after the phasing step to compare the VCF files.
 
     week5.ipynb+2-0
