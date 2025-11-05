@@ -6,7 +6,7 @@ of the assignment, I understand if this costs me some marks and I apologize for 
 more.
 
 
-Prompt1: "I need the varriant phasing with hapcut2 to output two vcf fiiles (one forr iillumina, 1 for pacbio) update my code to do that"
+Example1: "I need the varriant phasing with hapcut2 to output two vcf fiiles (one forr iillumina, 1 for pacbio) update my code to do that"
 
 RESPONSE:
     "I need the varriant phasing with hapcut2 to output two vcf fiiles (one forr iillumina, 1 for pacbio) update my code to do that
@@ -30,9 +30,9 @@ RESPONSE:
 
 
 
-Prompt2: "Now that we have the two phased vcf files, how can I do the following, as outlined in my assignment: "Now you should have two phased VCF files (one for each sequencing technology). Compare these VCFs. How many variants are shared between the VCFs? How many are not?""
+Example2: "Now that we have the two phased vcf files, how can I do the following, as outlined in my assignment: "Now you should have two phased VCF files (one for each sequencing technology). Compare these VCFs. How many variants are shared between the VCFs? How many are not?""
 
-RESONSE:
+RESPONSE:
     "Add a new cell after the phasing step to compare the VCF files.
 
     week5.ipynb+2-0
@@ -47,3 +47,43 @@ RESONSE:
     Analyzes phasing concordance to see if the two methods agree on which alleles are on the same chromosome
     Saves a comparison report to results/vcf_comparison.txt
     The output will clearly show how many variants are shared vs. unique to each technology, which directly answers your assignment question."
+
+
+
+Example3: "my assignment says the star allele output should look something like this, explain the notation they want me to use: CYP2C19*12 because X, Y and Z"
+
+RESPONSE:
+    "The notation they want is more detailed and explanatory. Let me break down what they're asking for:
+
+    Format Breakdown
+    CYP2C19*12 because X, Y and Z
+
+    This means:
+
+    Gene and Star Allele: State the specific allele (e.g., CYP2C19*12)
+    "because": Followed by explicit reasons
+    X, Y, Z: Multiple pieces of evidence/justification
+    What X, Y, and Z Should Be
+    These should be specific variant-based justifications, such as:
+
+    Example 1: CYP2C19*2
+    Example 2: CYP2C9*3
+    Example 3: CYP2C8*1/*1 (Wild-type)
+    Updated Format for Your Output
+    Instead of just:
+
+    They want:
+
+    CYP2C19*1/*2 because:
+    - Haplotype 1 is *1 (wild-type) as no variants were detected
+    - Haplotype 2 is *2 because variant rs4244285 (G>A at chr10:94762706) was detected
+    - This *2 allele causes aberrant splicing in exon 5, leading to loss of function
+    - The diplotype predicts Intermediate Metabolizer phenotype
+
+    The Three Components (X, Y, Z)
+    Typically should include:
+
+    X = Variant identification: "Variant rs4244285 detected at position..."
+    Y = Molecular consequence: "Causes aberrant splicing / amino acid change..."
+    Z = Functional impact: "Results in loss of function / decreased activity..."
+    Let me update your code to output in this format!"
